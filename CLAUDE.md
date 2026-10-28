@@ -8,6 +8,7 @@ Requirements: `docs/plans/00-requirements-analysis.md`. Implementation plan: `do
 - `app/models/` — domain classes, domain rules and **all** data access (repositories).
 - `app/views/templates/` — Jinja2 templates.
 - `app/controllers/` — Flask blueprints: `shop` (C1–C2), `account` (login/register, C3–C5), `admin` (A1–A4).
+- Food item pictures live in `instance/uploads/` (git-ignored) and are served by `shop.upload` (`/uploads/<filename>`).
 - Storage: file-based SQLite at `instance/ektemat.sqlite` (git-ignored, persists between restarts). Only repository classes in `app/models/repositories/` touch it, so Neo4j can replace SQLite in Oblig 5 without changes to controllers or views. Neo4j is **not** part of Oblig 4.
 
 ## How to run and test

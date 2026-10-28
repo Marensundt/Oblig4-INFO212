@@ -17,7 +17,7 @@ def test_root_redirects_to_menu(client):
     assert response.headers["Location"].endswith("/menu")
 
 
-def test_menu_page(client):
+def test_menu_page(client, repos):
     response = client.get("/menu")
     assert response.status_code == 200
     assert b"<h1>Menu</h1>" in response.data

@@ -21,6 +21,9 @@ class Config:
     # File-based SQLite database; None means "instance/ektemat.sqlite" (set in create_app).
     DATABASE = os.environ.get("DATABASE")
 
+    # Folder for food item pictures; None means "instance/uploads" (set in create_app).
+    UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER")
+
     # Upload limit for food item images (A2): 2 MB.
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024
 

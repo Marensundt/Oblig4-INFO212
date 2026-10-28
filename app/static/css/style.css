@@ -34,7 +34,7 @@ body {
   text-decoration: none;
 }
 
-nav a {
+.site-header nav a {
   margin-left: 1rem;
   color: var(--text);
 }
@@ -182,3 +182,57 @@ main {
 
 .danger { color: var(--error); }
 .admin-menu li { margin-bottom: 0.5rem; }
+
+/* Customer menu (C1) */
+.lead { color: var(--muted); }
+
+.category-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 1.5rem;
+}
+.category-nav a {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.menu-category { margin-bottom: 2rem; }
+.menu-category h2 { scroll-margin-top: 1rem; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.food-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+.food-card img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: #efe9dc;
+}
+.food-card-body { padding: 0.75rem 1rem 1rem; }
+.food-card h3 { margin: 0 0 0.25rem; font-size: 1.1rem; }
+.food-description { margin: 0 0 0.5rem; color: var(--muted); }
+
+.food-facts { margin: 0 0 0.5rem; }
+.food-facts div { display: flex; justify-content: space-between; gap: 1rem; }
+.food-facts dt { color: var(--muted); }
+.food-facts dd { margin: 0; font-weight: 600; }
+
+.food-allergens, .food-labels { margin: 0.25rem 0 0; }
+.badge-allergen { border-color: var(--error); color: var(--error); margin: 0 0.15rem 0.15rem 0; }
+.badge-diet { border-color: var(--accent); color: var(--accent); margin: 0 0.15rem 0.15rem 0; }

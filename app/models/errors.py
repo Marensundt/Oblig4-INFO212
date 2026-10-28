@@ -26,3 +26,7 @@ class DataIntegrityError(DomainError):
 
 class ItemInUse(DomainError):
     """A food item that is part of an order cannot be deleted (US-03 AC2)."""
+
+
+class StorageNotInitialised(DomainError):
+    """The database has not been created yet (run `flask --app run reset-db --yes`)."""

@@ -1,6 +1,26 @@
 {% extends "base.html" %}
+{% from "_partials/food_card.html" import food_card %}
 {% block title %}Menu — Ekte Mat Online{% endblock %}
 {% block content %}
   <h1>Menu</h1>
-  <p>The menu by kind of event (C1) will be shown here.</p>
+  <p class="lead">Authentic, seasonal food for your event. Choose the kind of event to see what fits.</p>
+
+  {% if groups %}
+    <nav class="category-nav" aria-label="Kinds of event">
+      {% for category, items in groups %}
+        <a href="#{{ category.slug }}">{{ category.name }}</a>
+      {% endfor %}
+    </nav>
+
+    {% for category, items in groups %}
+      <section class="menu-category" aria-labelledby="{{ category.slug }}">
+        <h2 id="{{ category.slug }}">{{ category.name }}</h2>
+        <div class="card-grid">
+          {% for item in items %}{{ food_card(item) }}{% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+  {% else %}
+    <p>The menu is being updated. Please check back soon.</p>
+  {% endif %}
 {% endblock %}

@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 
-from app.models.errors import DataIntegrityError
+from app.models.errors import DataIntegrityError, StorageNotInitialised
 
 SCHEMA_PATH = Path(__file__).with_name("schema.sql")
 
@@ -33,6 +33,11 @@ class SqliteDatabase:
         except sqlite3.IntegrityError as error:
             conn.rollback()
             raise DataIntegrityError(str(error)) from error
+        except sqlite3.OperationalError as error:
+            conn.rollback()
+            if "no such table" in str(error):
+                raise StorageNotInitialised(str(error)) from error
+            raise
         except Exception:
             conn.rollback()
             raise

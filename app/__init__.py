@@ -10,6 +10,7 @@ import os
 from flask import Flask, render_template
 from flask_wtf import CSRFProtect
 
+from app.models.errors import StorageNotInitialised
 from app.models.repositories.factory import build_repositories
 from config import Config
 
@@ -27,6 +28,9 @@ def create_app(config_class=Config, overrides=None):
         app.config.update(overrides)
     if not app.config.get("DATABASE"):
         app.config["DATABASE"] = os.path.join(app.instance_path, "ektemat.sqlite")
+    if not app.config.get("UPLOAD_FOLDER"):
+        # Food item pictures (A2), served on the menu (C1); git-ignored with instance/.
+        app.config["UPLOAD_FOLDER"] = os.path.join(app.instance_path, "uploads")
     os.makedirs(app.instance_path, exist_ok=True)
 
     csrf.init_app(app)
@@ -53,6 +57,11 @@ def create_app(config_class=Config, overrides=None):
     @app.errorhandler(403)
     def forbidden(error):
         return render_template("errors/403.html"), 403
+
+    @app.errorhandler(StorageNotInitialised)
+    def storage_not_initialised(error):
+        app.logger.error("Database not initialised: %s", error)
+        return render_template("errors/database.html"), 503
 
     @app.errorhandler(404)
     def not_found(error):
