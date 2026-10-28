@@ -4,14 +4,21 @@
 A first version of Ekte Mat Online for the fictional Bergen caterer Ekte Mat AS: a customer site (C1 menu by event, C2 cart, C3 order, C4 my orders, C5 questions) and an admin panel (A1 food items, A2 images, A3 orders, A4 questions). Group of four students.
 Requirements: `docs/plans/00-requirements-analysis.md`. Implementation plan: `docs/plans/01-implementation-plan.md`.
 
-## MVC layout (planned — code not written yet)
+## MVC layout (skeleton in place since phase 0; features follow in later phases)
 - `app/models/` — domain classes, domain rules and **all** data access (repositories).
 - `app/views/templates/` — Jinja2 templates.
 - `app/controllers/` — Flask blueprints: `shop` (C1–C2), `account` (login/register, C3–C5), `admin` (A1–A4).
 - Storage: file-based SQLite at `instance/ektemat.sqlite` (git-ignored, persists between restarts). Only repository classes in `app/models/repositories/` touch it, so Neo4j can replace SQLite in Oblig 5 without changes to controllers or views. Neo4j is **not** part of Oblig 4.
 
 ## How to run and test
-Not available yet — commands (install, seed, run, test) are added here and in `README.md` in phase 0/1 of the implementation plan.
+Python 3.11+. From the repository root:
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+flask --app run run      # http://127.0.0.1:5000
+pytest                   # also runs in GitHub Actions on every PR
+```
+Seeding (`flask --app run seed-db`) is added in phase 1. Tests use `TestConfig` and a temporary database, never `instance/`.
 
 ## Team rules
 - Plan every larger feature in plan mode first; commit the agreed plan to `docs/plans/` (numbered `NN-name.md`) before building it.
