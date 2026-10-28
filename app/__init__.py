@@ -34,6 +34,10 @@ def create_app(config_class=Config, overrides=None):
     # Controllers reach storage only through these repositories.
     app.repos = build_repositories(app.config)
 
+    from app.cli import register_cli
+
+    register_cli(app)
+
     from app.controllers.account import bp as account_bp
     from app.controllers.admin import bp as admin_bp
     from app.controllers.shop import bp as shop_bp
