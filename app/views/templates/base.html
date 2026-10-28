@@ -9,17 +9,29 @@
 <body>
   <header class="site-header">
     <a class="brand" href="{{ url_for('shop.menu') }}">Ekte Mat</a>
-    <nav>
+    <nav aria-label="Main">
       <a href="{{ url_for('shop.menu') }}">Menu</a>
-      <a href="{{ url_for('account.index') }}">My account</a>
-      <a href="{{ url_for('admin.index') }}">Admin</a>
+      {% if g.user %}
+        {% if g.user.is_admin %}
+          <a href="{{ url_for('admin.index') }}">Admin</a>
+        {% else %}
+          <a href="{{ url_for('account.index') }}">My account</a>
+        {% endif %}
+        <form class="inline-form" method="post" action="{{ url_for('account.logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="link-button">Log out ({{ g.user.name }})</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('account.login') }}">Log in</a>
+        <a href="{{ url_for('account.register') }}">Register</a>
+      {% endif %}
     </nav>
   </header>
 
   <main>
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
-        <p class="flash flash-{{ category }}">{{ message }}</p>
+        <p class="flash flash-{{ category }}" role="status">{{ message }}</p>
       {% endfor %}
     {% endwith %}
     {% block content %}{% endblock %}
