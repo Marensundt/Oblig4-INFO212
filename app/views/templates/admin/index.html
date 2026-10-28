@@ -2,5 +2,8 @@
 {% block title %}Admin — Ekte Mat Online{% endblock %}
 {% block content %}
   <h1>Admin panel</h1>
-  <p>Food items (A1), images (A2), orders (A3) and questions (A4) will be managed here.</p>
+  <ul class="admin-menu">
+    <li><a href="{{ url_for('admin.food_list') }}">Food items</a> — add, edit, publish and remove food (A1)</li>
+  </ul>
+  <p>Images (A2), orders (A3) and questions (A4) will be managed here.</p>
 {% endblock %}

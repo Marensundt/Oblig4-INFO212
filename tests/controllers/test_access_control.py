@@ -32,8 +32,8 @@ def test_customer_gets_403_on_every_admin_page(app, client, customer):
         assert client.get(path).status_code == 403, path
 
 
-def test_admin_sees_admin_panel(app, client, admin):
-    # US-21 AC3
+def test_admin_sees_admin_panel(app, client, admin, soup):
+    # US-21 AC3 (with data, so templates are rendered with real rows)
     log_in(client, "admin@example.com", PASSWORD)
     for path in admin_get_paths(app):
         assert client.get(path).status_code == 200, path

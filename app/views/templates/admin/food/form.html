@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_partials/forms.html" import field, checkboxes, checkbox %}
+{% set heading = "Edit “" ~ item.name ~ "”" if item else "Add food item" %}
+{% block title %}{{ heading }} — Admin — Ekte Mat Online{% endblock %}
+{% block content %}
+  <p><a href="{{ url_for('admin.food_list') }}">← Food items</a></p>
+  <h1>{{ heading }}</h1>
+  <form method="post" class="form form-wide" novalidate>
+    {{ form.hidden_tag() }}
+    {{ field(form.name) }}
+    {{ field(form.description) }}
+    <div class="field-row">
+      {{ field(form.price_nok) }}
+      {{ field(form.min_order_qty) }}
+    </div>
+    {{ checkboxes(form.category_ids) }}
+    {{ checkboxes(form.allergens) }}
+    {{ checkboxes(form.dietary_labels) }}
+    {{ checkbox(form.published) }}
+    {{ form.submit(class="button") }}
+    <a href="{{ url_for('admin.food_list') }}">Cancel</a>
+  </form>
+{% endblock %}

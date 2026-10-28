@@ -1,12 +1,35 @@
 {# Form field with label and error messages (labels on every field: NFR-16). #}
+{% macro errors(f) %}
+  {% if f.errors %}
+    <ul class="field-errors" id="{{ f.id }}-errors">
+      {% for error in f.errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}
+
 {% macro field(f, autocomplete=None) %}
+  {% set attrs = {} %}
+  {% if autocomplete %}{% set _ = attrs.update({"autocomplete": autocomplete}) %}{% endif %}
+  {% if f.errors %}{% set _ = attrs.update({"aria-describedby": f.id ~ "-errors", "aria-invalid": "true"}) %}{% endif %}
   <div class="field{% if f.errors %} has-error{% endif %}">
     {{ f.label }}
-    {{ f(autocomplete=autocomplete, **({"aria-describedby": f.id ~ "-errors", "aria-invalid": "true"} if f.errors else {})) }}
-    {% if f.errors %}
-      <ul class="field-errors" id="{{ f.id }}-errors">
-        {% for error in f.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
+    {{ f(**attrs) }}
+    {{ errors(f) }}
+  </div>
+{% endmacro %}
+
+{# Group of checkboxes (MultiCheckboxField) in a fieldset with legend. #}
+{% macro checkboxes(f) %}
+  <fieldset class="field checkbox-group{% if f.errors %} has-error{% endif %}" id="{{ f.id }}-group">
+    <legend>{{ f.label.text }}</legend>
+    {{ f(class="checkbox-list") }}
+    {{ errors(f) }}
+  </fieldset>
+{% endmacro %}
+
+{% macro checkbox(f) %}
+  <div class="field checkbox-single">
+    {{ f() }} {{ f.label }}
+    {{ errors(f) }}
   </div>
 {% endmacro %}

@@ -84,7 +84,8 @@ main {
   font-weight: 600;
 }
 
-.field input {
+.field input:not([type="checkbox"]),
+.field textarea {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid var(--border);
@@ -92,7 +93,10 @@ main {
   font: inherit;
 }
 
-.has-error input {
+.field textarea { min-height: 5rem; }
+
+.has-error input,
+.has-error textarea {
   border-color: var(--error);
 }
 
@@ -123,3 +127,58 @@ main {
   font-size: 0.875rem;
   text-align: center;
 }
+
+.form-wide { max-width: 40rem; }
+
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.field-row .field { flex: 1 1 12rem; }
+
+.checkbox-group {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+}
+.checkbox-group legend { font-weight: 600; padding: 0 0.25rem; }
+.checkbox-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.25rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.checkbox-list label, .checkbox-single label { display: inline; font-weight: normal; }
+
+/* Admin tables */
+.table-wrap { overflow-x: auto; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.data-table th, .data-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+.data-table .num { text-align: right; }
+.actions { white-space: nowrap; }
+.actions .inline-form { margin-left: 0.75rem; }
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+}
+.badge-published { border-color: var(--accent); color: var(--accent); }
+.badge-draft { color: var(--muted); }
+
+.danger { color: var(--error); }
+.admin-menu li { margin-bottom: 0.5rem; }
