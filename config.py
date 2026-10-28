@@ -11,6 +11,9 @@ class Config:
     # A random fallback keeps the app runnable without .env; sessions then reset on restart.
     SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 
+    # Storage implementation chosen in app/models/repositories/factory.py (Neo4j in Oblig 5).
+    STORAGE = "sqlite"
+
     # File-based SQLite database; None means "instance/ektemat.sqlite" (set in create_app).
     DATABASE = os.environ.get("DATABASE")
 

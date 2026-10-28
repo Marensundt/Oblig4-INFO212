@@ -1,6 +1,9 @@
 import pytest
 
 from app import create_app
+from app.models.entities import EventCategory, FoodItem, User
+from app.models.enums import Allergen, Role
+from app.models.repositories.factory import init_storage
 from config import TestConfig
 
 
@@ -13,3 +16,37 @@ def app(tmp_path):
 @pytest.fixture
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture
+def repos(app):
+    """Repositories on a fresh, empty temporary database."""
+    init_storage(app.config)
+    return app.repos
+
+
+@pytest.fixture
+def customer(repos):
+    return repos.users.add(User("kunde@example.com", "hash", "Test Kunde"))
+
+
+@pytest.fixture
+def admin(repos):
+    return repos.users.add(User("admin@example.com", "hash", "Test Admin", role=Role.ADMIN))
+
+
+@pytest.fixture
+def categories(repos):
+    return {
+        slug: repos.categories.add(EventCategory(slug, slug.capitalize(), sort_order))
+        for sort_order, slug in enumerate(["birthday", "wedding", "conference"])
+    }
+
+
+@pytest.fixture
+def soup(repos, categories):
+    return repos.food_items.add(FoodItem(
+        "Fish soup", "Bergen cod", 189, 10,
+        category_ids=[categories["conference"].id], allergens={Allergen.FISH, Allergen.MILK}, published=True,
+    ))
+

@@ -10,6 +10,7 @@ import os
 from flask import Flask, render_template
 from flask_wtf import CSRFProtect
 
+from app.models.repositories.factory import build_repositories
 from config import Config
 
 csrf = CSRFProtect()
@@ -29,6 +30,9 @@ def create_app(config_class=Config, overrides=None):
     os.makedirs(app.instance_path, exist_ok=True)
 
     csrf.init_app(app)
+
+    # Controllers reach storage only through these repositories.
+    app.repos = build_repositories(app.config)
 
     from app.controllers.account import bp as account_bp
     from app.controllers.admin import bp as admin_bp
