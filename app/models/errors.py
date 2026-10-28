@@ -22,3 +22,7 @@ class DuplicateEmail(DomainError):
 
 class DataIntegrityError(DomainError):
     """A stored value breaks a data rule (e.g. price <= 0, unknown status)."""
+
+
+class ItemInUse(DomainError):
+    """A food item that is part of an order cannot be deleted (US-03 AC2)."""
