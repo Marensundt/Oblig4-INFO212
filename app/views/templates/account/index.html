@@ -2,5 +2,6 @@
 {% block title %}My account — Ekte Mat Online{% endblock %}
 {% block content %}
   <h1>My account</h1>
-  <p>Login, ordering (C3), my orders (C4) and questions (C5) will be available here.</p>
+  <p>Logged in as <strong>{{ g.user.name }}</strong> ({{ g.user.email }}).</p>
+  <p>Ordering (C3), my orders (C4) and questions (C5) will be available here.</p>
 {% endblock %}

@@ -46,6 +46,14 @@ def create_app(config_class=Config, overrides=None):
     app.register_blueprint(account_bp)
     app.register_blueprint(admin_bp)
 
+    from app.controllers.decorators import load_current_user
+
+    app.before_request(load_current_user)
+
+    @app.errorhandler(403)
+    def forbidden(error):
+        return render_template("errors/403.html"), 403
+
     @app.errorhandler(404)
     def not_found(error):
         return render_template("errors/404.html"), 404

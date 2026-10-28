@@ -11,6 +11,10 @@ class Config:
     # A random fallback keeps the app runnable without .env; sessions then reset on restart.
     SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 
+    # Session cookie: not readable from JavaScript, not sent on cross-site POSTs.
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+
     # Storage implementation chosen in app/models/repositories/factory.py (Neo4j in Oblig 5).
     STORAGE = "sqlite"
 

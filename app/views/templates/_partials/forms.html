@@ -1,0 +1,12 @@
+{# Form field with label and error messages (labels on every field: NFR-16). #}
+{% macro field(f, autocomplete=None) %}
+  <div class="field{% if f.errors %} has-error{% endif %}">
+    {{ f.label }}
+    {{ f(autocomplete=autocomplete, **({"aria-describedby": f.id ~ "-errors", "aria-invalid": "true"} if f.errors else {})) }}
+    {% if f.errors %}
+      <ul class="field-errors" id="{{ f.id }}-errors">
+        {% for error in f.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endmacro %}

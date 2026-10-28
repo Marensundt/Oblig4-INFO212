@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_partials/forms.html" import field %}
+{% block title %}Register — Ekte Mat Online{% endblock %}
+{% block content %}
+  <h1>Create an account</h1>
+  <p>You need an account to send an order and follow it afterwards.</p>
+  <form method="post" action="{{ url_for('account.register') }}" class="form" novalidate>
+    {{ form.hidden_tag() }}
+    {{ field(form.name, autocomplete="name") }}
+    {{ field(form.email, autocomplete="email") }}
+    {{ field(form.phone, autocomplete="tel") }}
+    {{ field(form.password, autocomplete="new-password") }}
+    {{ field(form.confirm, autocomplete="new-password") }}
+    {{ form.submit(class="button") }}
+  </form>
+  <p>Already registered?
+    <a href="{{ url_for('account.login', next=form.next.data or None) }}">Log in</a>.
+  </p>
+{% endblock %}

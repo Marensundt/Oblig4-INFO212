@@ -4,7 +4,9 @@ from app import create_app
 from app.models.entities import EventCategory, FoodItem, User
 from app.models.enums import Allergen, Role
 from app.models.repositories.factory import init_storage
+from app.models.security import hash_password
 from config import TestConfig
+from tests.factories import PASSWORD
 
 
 @pytest.fixture
@@ -27,12 +29,12 @@ def repos(app):
 
 @pytest.fixture
 def customer(repos):
-    return repos.users.add(User("kunde@example.com", "hash", "Test Kunde"))
+    return repos.users.add(User("kunde@example.com", hash_password(PASSWORD), "Test Kunde"))
 
 
 @pytest.fixture
 def admin(repos):
-    return repos.users.add(User("admin@example.com", "hash", "Test Admin", role=Role.ADMIN))
+    return repos.users.add(User("admin@example.com", hash_password(PASSWORD), "Test Admin", role=Role.ADMIN))
 
 
 @pytest.fixture
