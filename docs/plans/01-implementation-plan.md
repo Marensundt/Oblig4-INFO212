@@ -296,8 +296,8 @@ The PDF report and the assignment PDF are kept **outside the repository** [DECIS
 | **OPEN-6** | Seed minimum orders, categories and allergens are not in the data pack. | Marked [ASSUMPTION] in §7; confirm against Lab 7 backlog. |
 | **OPEN-7** | Case says 3 developers; our group has 4. | Plan uses 4 (assignment allows 2–4). |
 | **OPEN-8** | Should `EkteMat_project_inbox/` (data pack) be committed? | Not yet decided; currently untracked. |
-| **OPEN-9** (partly resolved) | Payment-status transitions and exact order-status transitions are not specified in detail. | Modelled in `docs/design/state-order.puml`: official states and main path; cancel from approved/in_preparation and free payment-status changes remain [ASSUMPTION] — team to confirm before phase 1 (OQ-04). |
-| **OPEN-10** | Proposed data-validation rules (DV-01 – DV-12) and NFR targets are not in Oblig 4. | Marked [ASSUMPTION]; team confirms which DV rules to enforce before phase 1. DV-02 (400 guests) and performance targets NFR-11/12 are optional, not mandatory. |
+| ~~OPEN-9~~ **resolved 2026-10-28** | Exact order-status transitions and payment-status rules. | Decided in `docs/plans/03` §2 and implemented in `app/models/enums.py`: official states and main path [OFFICIAL]; rejected only from submitted, cancelled from any non-final state, final states fixed, payment status set freely [ASSUMPTION]. |
+| ~~OPEN-10~~ **resolved 2026-10-28** | Which data-validation rules to enforce. | Decided in `docs/plans/03` §2: official rules (A3 values, C2 minimum order) and essential integrity rules enforced in phase 1; form rules later (phases 3, 6); DV-02 and NFR-11/12 optional, not planned. Decision column in `docs/backlog/data-validation-rules.md`. |
 
 ## 13. Checklist for this plan
 

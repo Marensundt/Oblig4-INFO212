@@ -19,7 +19,22 @@ cp .env.example .env               # optional: set SECRET_KEY; never commit .env
 ```
 
 ## Seed the database
-Not available yet — the seed command (sample food items, an admin and test customers) is added in phase 1.
+```bash
+flask --app run reset-db --yes     # create instance/ektemat.sqlite and add synthetic sample data
+```
+Separate steps: `flask --app run init-db` (empty tables; asks before deleting data) and `flask --app run seed-db` (adds sample data once; running it again changes nothing).
+
+The seed creates 6 event categories, 12 food items, 6 orders (one in each order status) with guest groups, 3 questions, and these **demo accounts**:
+
+| Role | E-mail | Password |
+|---|---|---|
+| Admin | `admin@ektemat.example` | `ektemat-demo` |
+| Customer | `kari.kunde@example.com` | `ektemat-demo` |
+| Customer | `ola.kunde@example.com` | `ektemat-demo` |
+
+> The demo password is for **local testing with synthetic data only**. Never use it as a real or production password.
+
+The database file is not under version control; delete it or run `reset-db` at any time to start again.
 
 ## Run
 ```bash
@@ -36,7 +51,8 @@ Tests also run automatically on GitHub (Actions) for every pull request and push
 ## Project structure
 ```
 app/
-  models/            model layer: domain classes and data access (repositories)
+  models/            model layer: domain classes, enums, seed data
+    repositories/    interfaces + sqlite/ implementations (the only code that touches the database)
   views/templates/   view layer: Jinja2 templates
   controllers/       controller layer: blueprints shop, account, admin
   static/            CSS and JavaScript
