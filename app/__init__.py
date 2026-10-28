@@ -27,6 +27,9 @@ def create_app(config_class=Config, overrides=None):
         app.config.update(overrides)
     if not app.config.get("DATABASE"):
         app.config["DATABASE"] = os.path.join(app.instance_path, "ektemat.sqlite")
+    if not app.config.get("UPLOAD_FOLDER"):
+        # Food item pictures (A2), served on the menu (C1); git-ignored with instance/.
+        app.config["UPLOAD_FOLDER"] = os.path.join(app.instance_path, "uploads")
     os.makedirs(app.instance_path, exist_ok=True)
 
     csrf.init_app(app)
