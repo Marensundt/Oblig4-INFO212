@@ -7,6 +7,9 @@ instance/
 # Assignment texts (course material, kept local only)
 docs/assignment/
 
+# Original Ekte Mat data pack (course material, read only, kept local only)
+EkteMat_project_inbox/
+
 # Local tools (e.g. plantuml.jar), downloaded per machine
 tools/
 
