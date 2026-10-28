@@ -15,15 +15,17 @@ Python 3.11+. From the repository root:
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-flask --app run run      # http://127.0.0.1:5000
-pytest                   # also runs in GitHub Actions on every PR
+flask --app run reset-db --yes   # create + seed instance/ektemat.sqlite (synthetic data)
+flask --app run run              # http://127.0.0.1:5000
+pytest                           # also runs in GitHub Actions on every PR
 ```
-Seeding (`flask --app run seed-db`) is added in phase 1. Tests use `TestConfig` and a temporary database, never `instance/`.
+Demo logins are in README (password for local synthetic data only). Tests use `TestConfig` and a temporary database, never `instance/`; shared fixtures in `tests/conftest.py`, builders in `tests/factories.py`.
 
 ## Team rules
 - Plan every larger feature in plan mode first; commit the agreed plan to `docs/plans/` (numbered `NN-name.md`) before building it.
 - Every student commits and pushes from their own GitHub account. Work on feature branches; merge to `main` via pull request reviewed by another student.
-- Controllers and templates never use `sqlite3` or SQL; repositories take and return domain objects only.
+- Controllers and templates never use `sqlite3` or SQL; they use `current_app.repos` (users, categories, food_items, orders, questions). Repositories take and return domain objects only and raise errors from `app/models/errors.py`.
+- Order-status rules live only in `app/models/enums.py` (`OrderStatus.can_change_to`).
 - Synthetic data only. Allergy/dietary notes are stored per guest group, never per named guest.
 - No payment solution: payment status is set manually by admin.
 - **Never commit secrets** (Claude API key, `SECRET_KEY`): use `.env` (git-ignored).

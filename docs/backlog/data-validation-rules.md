@@ -4,6 +4,22 @@ Source: `EkteMat_project_inbox/orders_2024_2025_export.xlsx`, sheet 1 (820 data 
 
 > **Status: ASSUMPTION — proposed by the team, not official Oblig 4 requirements.** Oblig 4 does not specify validation rules. The only rules that coincide with the official text are the allowed values of order status (DV-07) and payment status (DV-08), which come from OB4 A3, and the minimum-order check, which comes from OB4 C2. **DV-02 (400-guest threshold) is optional and not mandatory.** All rules are to be confirmed by the team/product owner before implementation.
 
+## Decision (2026-10-28, OPEN-10 — `docs/plans/03-phase1-model-and-repositories.md` §2)
+
+| Group | Rules | Status |
+|---|---|---|
+| **Official (Oblig 4)** | DV-07 order status values (A3); DV-08 payment status values, default *not paid* (A3); minimum order quantity ≥ 1 per item (needed for C2) | Implemented in phase 1 (enums + schema) |
+| **Essential integrity (ASSUMPTION)** | DV-01 guests ≥ 1, guest-group count ≥ 1, line quantity ≥ 1; DV-03 price > 0; DV-05 computed totals; DV-06 unique generated order number; DV-09 fixed lists; DV-12 separate guest-group fields without names | Implemented in phase 1 (schema / design) |
+| **Form rules (ASSUMPTION)** | Quantity ≥ item minimum in cart (OFFICIAL C2, phase 5); DV-10 ≥ 1 category per item (phase 3); DV-04 event date in the future, DV-11 ≥ 1 guest group and counts ≤ guests (phase 6) | Built with their forms |
+
+### Optional rules — documented only, not mandatory
+| Rule | Why not planned |
+|---|---|
+| DV-02 warning above 400 guests per order/day | Kitchen capacity comes from the data pack, not Oblig 4; belongs with optional US-24 |
+| NFR-11 / NFR-12 performance targets | Proposed targets, not Oblig 4 requirements |
+
+## Proposed rules (analysis)
+
 Each problem in the old Excel process becomes a proposed rule the new system enforces — as an **acceptance criterion** (checked in the form/model) and as a **database constraint** (SQLite now; the same rule must hold in the Neo4j repositories later).
 
 | ID | Problem found | Count | Example rows | Rule in Ekte Mat Online | Acceptance criterion | DB constraint (SQLite) | Story |
