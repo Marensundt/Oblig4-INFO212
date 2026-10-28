@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Database not set up — Ekte Mat Online{% endblock %}
+{% block content %}
+  <h1>The database is not set up yet</h1>
+  <p>Ekte Mat Online cannot show this page because its database has not been created.</p>
+  <p>Stop the server, run this command in the project folder, and start the server again:</p>
+  <pre><code>flask --app run reset-db --yes</code></pre>
+  <p>This creates <code>instance/ektemat.sqlite</code> with synthetic sample data (see README, “Seed the database”).</p>
+{% endblock %}
