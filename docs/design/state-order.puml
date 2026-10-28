@@ -1,0 +1,37 @@
+@startuml state-order
+' Ekte Mat Online — state machine for Order.status (OB4 A3; US-12, US-15)
+' States: OFFICIAL (OB4 A3). Which transitions are allowed beyond the main path: ASSUMPTION (OQ-04).
+!pragma layout smetana
+hide empty description
+
+[*] --> submitted : customer submits order (C3)
+
+submitted --> approved : admin approves
+submitted --> rejected : admin rejects
+approved --> in_preparation : admin starts preparation
+in_preparation --> delivered : admin marks delivered
+
+submitted --> cancelled : admin cancels
+approved --> cancelled : admin cancels
+in_preparation --> cancelled : admin cancels
+
+delivered --> [*]
+rejected --> [*]
+cancelled --> [*]
+
+note right of submitted
+  Entry: paymentStatus = not_paid
+end note
+
+note bottom of cancelled
+  delivered, rejected and cancelled are final:
+  no further status change (US-15 AC3).
+  Cancel from approved / in_preparation: ASSUMPTION.
+end note
+
+note right of approved
+  Payment status (not_paid, deposit_paid, invoiced, paid)
+  is set independently by the admin in any order state
+  (OB4 A3 "e.g."; no rules given: ASSUMPTION, US-16).
+end note
+@enduml

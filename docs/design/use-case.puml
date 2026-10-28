@@ -1,0 +1,71 @@
+@startuml use-case
+' Ekte Mat Online — use case diagram (Oblig 4 Must scope)
+' Traceability: each use case lists its Oblig 4 ID and user stories (docs/backlog/user-stories.md)
+!pragma layout smetana
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Visitor" as Visitor
+actor "Customer" as Customer
+actor "Admin\n(Ekte Mat staff)" as Admin
+actor "Image service\n(AI agent)" as ImageService <<external>>
+
+Customer -|> Visitor
+
+rectangle "Ekte Mat Online" {
+  package "Customer site (shop + account)" {
+    usecase "UC-01 Browse menu by event\n[C1 · US-06]" as UC01
+    usecase "UC-02 Manage shopping cart\n[C2 · US-08, US-09]" as UC02
+    usecase "UC-03 Register\n[C3 · US-10]" as UC03
+    usecase "UC-04 Log in / log out\n[C3 · US-11]" as UC04
+    usecase "UC-05 Submit order\n[C3 · US-12]" as UC05
+    usecase "UC-06 Describe guest groups\n(allergies, diets)\n[C3 · US-13]" as UC06
+    usecase "UC-07 View my orders\n[C4 · US-17]" as UC07
+    usecase "UC-08 Ask question about order\n[C5 · US-18]" as UC08
+    usecase "UC-09 Read answer\n[C5 · US-19]" as UC09
+  }
+  package "Admin panel (admin)" {
+    usecase "UC-10 Manage food items\n[A1 · US-01–03]" as UC10
+    usecase "UC-11 Upload picture\n[A2 · US-04]" as UC11
+    usecase "UC-12 Generate / modify picture\nfrom instruction\n[A2 · US-05]" as UC12
+    usecase "UC-13 Preview and save picture\n[A2 · US-04, US-05]" as UC13
+    usecase "UC-14 List and filter orders\n[A3 · US-14]" as UC14
+    usecase "UC-15 Manage order status\n[A3 · US-15]" as UC15
+    usecase "UC-16 Set payment status\n[A3 · US-16]" as UC16
+    usecase "UC-17 Answer questions\n[A4 · US-20]" as UC17
+  }
+}
+
+Visitor --> UC01
+Visitor --> UC02
+Visitor --> UC03
+Customer --> UC04
+Customer --> UC05
+Customer --> UC07
+Customer --> UC08
+Customer --> UC09
+
+UC05 ..> UC06 : <<include>>
+UC05 ..> UC04 : <<include>>
+UC09 ..> UC07 : <<extend>>
+
+Admin --> UC04
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+Admin --> UC14
+Admin --> UC15
+Admin --> UC16
+Admin --> UC17
+
+UC11 ..> UC13 : <<include>>
+UC12 ..> UC13 : <<include>>
+UC12 --> ImageService
+UC15 ..> UC14 : <<extend>>
+
+note bottom of Admin
+  Admin login is an ASSUMPTION
+  (OB4: "Only customer login pages are fine", OQ-08)
+end note
+@enduml

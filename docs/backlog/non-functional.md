@@ -1,0 +1,36 @@
+# Non-functional requirements
+
+Quality characteristics follow ISO/IEC 25010. Every NFR has a number and unit and a way to verify it.
+Label: **OB4** = required by the official assignment · **SRC** = derived from a data-pack source · **ASSUMPTION** = our proposal. Priority uses the same MoSCoW definitions as `user-stories.md`.
+
+> Only the NFRs labelled **OB4** restate official requirements (NFR-01, -02, -03, -08, -09 and the guest-group part of NFR-07); for NFR-09 only "README commands" is official, the numbers are ours. **Every number in an ASSUMPTION or SRC row is a proposed target, not an Oblig 4 requirement.** In particular the performance targets (NFR-11, NFR-12) and the data-validation rules (NFR-13) are **not mandatory**.
+
+| ID | Quality characteristic | Measurable requirement | Verification | Source | Label | Priority |
+|---|---|---|---|---|---|---|
+| NFR-01 | Maintainability — modularity | Code is organised in the three MVC layers `app/models/`, `app/views/`, `app/controllers/`; controllers are Flask routes in **3** blueprints (shop, account, admin). | Folder listing; code review | OB4 §3 "The three layers must be visible in your folder structure." | OB4 | Must |
+| NFR-02 | Maintainability — replaceability | **0** imports of `sqlite3` (or SQL strings) outside `app/models/repositories/sqlite/`; replacing SQLite with Neo4j changes **0** files in `app/controllers/` and `app/views/`. | `grep -r sqlite3 app/` in CI/test; review | OB4 §3 "only repository classes in the model layer touch it, so that Neo4j can later replace it without changes to controllers or views" | OB4 | Must |
+| NFR-03 | Security — confidentiality | **0** API keys or secrets in the Git history and working tree (e.g. no match for `sk-ant-`); keys only via environment variables. | Secret search before every PR and before tag `oblig4` | OB4 §3 "make sure that your project does not include Claude API key" | OB4 | Must |
+| NFR-04 | Security — authenticity | **100 %** of stored passwords are salted hashes (Werkzeug); **0** plain-text passwords. | Repository test inspects stored value | OB4 C3 (login); security practice | ASSUMPTION | Must |
+| NFR-05 | Security — access control | **100 %** of `/admin` routes return 403 for customers and redirect anonymous users to login; **100 %** of order/question routes return 404 for orders owned by another customer. | Parametrised controller tests over all routes | GDPR note; INT-F "Our IT department will ask where our data is stored"; OB4 C4 "own orders" | ASSUMPTION (admin login, see OQ-08) | Must |
+| NFR-06 | Security — integrity | **100 %** of state-changing requests are POST with a valid CSRF token; a request without token returns 400. | Controller tests | Security practice | ASSUMPTION | Must |
+| NFR-07 | Privacy (GDPR) | Guest groups store **0** guest names; allergy data is visible only to the order's customer and admins. | Schema review; NFR-05 tests | GDPR "Store per guest group, not per named guest"; OB4 C3 "per guest group" | OB4 + SRC | Must |
+| NFR-08 | Compliance — data | **100 %** of seed data is synthetic; **0** real personal data in the repository. | Review of seed script | OB4 §3 "synthetic data only" | OB4 | Must |
+| NFR-09 | Installability | A fresh clone reaches a running, seeded app with **≤ 5** README commands in **≤ 10 min** on Python **3.11+** (macOS, Windows, Linux). | Each team member follows README on own machine before tag | OB4 §3 "the README gives the commands to install, seed, run and test" | OB4 (numbers: ASSUMPTION) | Must |
+| NFR-10 | Testability | Every Must acceptance criterion has **≥ 1** automated test; `pytest` passes **100 %** on `main` and on tag `oblig4`. | `pytest` report | OB4 §1 "plan, build, test, review"; OB4 "executable" | ASSUMPTION | Must |
+| NFR-11 | Performance — time behaviour | Server response time **< 2 s** (95th percentile, local machine) for menu, cart, order list and order page, with **5 000** orders and **100** food items in the database. | Timing test with generated synthetic data | INT-M "The old booking plugin on the website took ten seconds to load a page."; ORD: 820 orders in 24 months, peak **72** events in one month (2025-12), max **15** orders on one day; ×3 growth headroom (ASSUMPTION) | ASSUMPTION (target, not mandatory) | Could |
+| NFR-12 | Performance — capacity | Admin order list filtered by status and date returns in **< 1 s** with **5 000** orders. | Same timing test | ORD volumes as NFR-11; OB4 A3 filtering | ASSUMPTION (target, not mandatory) | Could |
+| NFR-13 | Data quality | The **confirmed** rules from `data-validation-rules.md` are enforced, each with a test. (Rules are proposals until confirmed; DV-02 is optional.) | Tests | ORD data-quality problems (00-analysis, DV table) | ASSUMPTION | Should |
+| NFR-14 | Usability — operability | A logged-in customer can go from the menu to a submitted order in **≤ 4** pages (menu → cart → checkout → confirmation). | Manual walkthrough (01-plan §8) | INT-I "send a booking request themselves, at any hour"; E023 "I tried the contact form on your website three times and got an error." | ASSUMPTION | Should |
+| NFR-15 | Usability — responsiveness of service | The admin dashboard shows the number of unanswered questions and the age of the oldest in **hours**. | Controller test | INT-S replies take "one or two days … In December and in May it can be a week"; ORD median first reply **22.1 h**, **95** of 820 orders (**11.6 %**) > 48 h; peak months median **27.1 h** vs **18.4 h** off-peak | SRC | Should |
+| NFR-16 | Accessibility | Every form field has a label; colour is never the only signal (allergy highlight also uses text/icon); Lighthouse accessibility score **≥ 90** on menu, cart and checkout. | Lighthouse in browser | Norwegian universal-design rules (ASSUMPTION); INT-M "allergies in red" | ASSUMPTION | Should |
+| NFR-17 | Usability — language | **100 %** of fixed customer-page texts available in Norwegian and English. | Template review | IT "Norwegian and English UI"; OB4 §2 optional | SRC | Should (US-26) |
+| NFR-18 | Resource utilisation | Uploaded images **≤ 2 MB**, formats JPG/PNG/WebP/SVG. | Controller test | OB4 A2; running cost "< 3 000 NOK/month" (`budget and constraints.txt`) | ASSUMPTION | Must |
+| NFR-19 | Availability / reliability | Without an AI key or network, A2 upload and the whole app still work (AI generation falls back or shows a message); **0** crashes. | Test with no key set | OB4 A2 + §3; INT-M "the screen should not just go blank" | ASSUMPTION | Must |
+
+## Not measured in Oblig 4 (Won't, recorded for later)
+| Need | Source | Reason |
+|---|---|---|
+| Data stored in EU/EEA; data processing agreement with providers | IT, GDPR, INT-F | Runs locally in Oblig 4; applies when hosted |
+| Retention: bookkeeping data 5 years, other personal data shorter | GDPR | No real data; W-08 |
+| 24/7 availability | INT-I "at any hour" | No hosting in Oblig 4 |
+| Running cost < 3 000 NOK/month | `budget and constraints.txt` | No hosting in Oblig 4 (only AI image cost is relevant, NFR-19) |

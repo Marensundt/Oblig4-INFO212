@@ -1,0 +1,153 @@
+@startuml domain-class
+' Ekte Mat Online — domain class diagram (analysis level: attributes, multiplicities, associations; no methods,
+' no controllers/repositories). Source: user-stories.md, data-validation-rules.md, 01-plan §4.
+!pragma layout smetana
+hide empty methods
+skinparam classAttributeIconSize 0
+
+enum Role {
+  customer
+  admin
+}
+
+enum OrderStatus {
+  submitted
+  approved
+  in_preparation
+  delivered
+  rejected
+  cancelled
+}
+
+enum PaymentStatus {
+  not_paid
+  deposit_paid
+  invoiced
+  paid
+}
+
+enum Allergen {
+  gluten
+  crustaceans
+  eggs
+  fish
+  peanuts
+  soy
+  milk
+  nuts
+  celery
+  mustard
+  sesame
+  sulphites
+  lupin
+  molluscs
+}
+
+enum DietaryLabel {
+  vegetarian
+  vegan
+  gluten_free
+  lactose_free
+  halal
+  kids_friendly
+}
+
+class User {
+  email : String {unique}
+  passwordHash : String
+  name : String
+  phone : String [0..1]
+  role : Role
+  createdAt : DateTime
+}
+
+class EventCategory {
+  slug : String {unique}
+  name : String
+  sortOrder : Integer
+}
+
+class FoodItem {
+  name : String
+  description : String
+  priceNok : Integer {> 0}
+  minOrderQty : Integer {>= 1}
+  allergens : Allergen [0..*]
+  dietaryLabels : DietaryLabel [0..*]
+  published : Boolean
+  imageFile : String [0..1]
+}
+
+class Cart <<session>> {
+  /estimatedTotalNok : Integer
+}
+
+class CartLine {
+  quantity : Integer {>= minOrderQty}
+}
+
+class Order {
+  orderNumber : String {unique}
+  eventDate : Date {> submission date}
+  guestCount : Integer {>= 1}
+  deliveryAddress : String
+  status : OrderStatus = submitted
+  paymentStatus : PaymentStatus = not_paid
+  createdAt : DateTime
+  /totalNok : Integer
+}
+
+class OrderLine {
+  itemName : String
+  unitPriceNok : Integer {> 0}
+  quantity : Integer {>= 1}
+}
+
+class GuestGroup {
+  label : String
+  count : Integer {>= 1}
+  allergies : Allergen [0..*]
+  dietaryNotes : String [0..1]
+}
+
+class Question {
+  text : String
+  askedAt : DateTime
+  answerText : String [0..1]
+  answeredAt : DateTime [0..1]
+}
+
+FoodItem "0..*" -- "1..*" EventCategory : belongs to >
+Cart "1" *-- "0..*" CartLine
+CartLine "0..*" --> "1" FoodItem
+User "1" -- "0..*" Order : places >
+Order "1" *-- "1..*" OrderLine
+OrderLine "0..*" --> "0..1" FoodItem : refers to >
+Order "1" *-- "1..*" GuestGroup
+Order "1" *-- "0..*" Question
+User "1" -- "0..*" Question : asks >
+User "0..1" -- "0..*" Question : answers >
+
+note right of GuestGroup
+  No guest names (GDPR note; OB4 C3 "per guest group").
+  Sum of counts <= Order.guestCount (ASSUMPTION).
+end note
+
+note bottom of OrderLine
+  itemName and unitPriceNok are snapshots at submission
+  (ASSUMPTION, US-02 AC2). FoodItem link becomes empty
+  if the item is later removed.
+end note
+
+legend bottom left
+  Official (OB4 A1, A3, C3): FoodItem fields, OrderStatus and PaymentStatus values,
+  Order fields (event date, guests, address), guest groups with allergy/dietary notes.
+  Constraints in { } and the Allergen / DietaryLabel value lists are proposed
+  validation rules (ASSUMPTION, docs/backlog/data-validation-rules.md), not Oblig 4 requirements.
+endlegend
+
+note right of Cart
+  Lives in the browser session until checkout;
+  not stored as an order (ASSUMPTION).
+end note
+@enduml
