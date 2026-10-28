@@ -27,6 +27,7 @@ Demo logins are in README (password for local synthetic data only). Tests use `T
 - Controllers and templates never use `sqlite3` or SQL; they use `current_app.repos` (users, categories, food_items, orders, questions). Repositories take and return domain objects only and raise errors from `app/models/errors.py`.
 - Order-status rules live only in `app/models/enums.py` (`OrderStatus.can_change_to`).
 - Protect routes with `@login_required` / `@admin_required` (`app/controllers/decorators.py`); every `/admin` route needs `@admin_required` (a test checks all admin GET routes). The logged-in user is `g.user`. Registration and login logic live in `app/models/accounts.py`.
+- Domain rules stay in the model layer, not in controllers (e.g. food-item delete/publish rules in `app/models/catalogue.py`).
 - State-changing requests are POST forms with a CSRF token (`form.hidden_tag()` or `csrf_token()`).
 - Synthetic data only. Allergy/dietary notes are stored per guest group, never per named guest.
 - No payment solution: payment status is set manually by admin.

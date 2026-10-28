@@ -44,6 +44,8 @@ Open http://127.0.0.1:5000
 
 Log in at http://127.0.0.1:5000/account/login with a demo account (see above), or register a new customer account at `/account/register`. The admin panel (`/admin/`) is only available to the admin account; customers get "Access denied".
 
+As admin you can manage the food items at `/admin/food`: add, edit, publish/unpublish and delete (items that are part of an order can only be unpublished).
+
 ## Test
 ```bash
 pytest
