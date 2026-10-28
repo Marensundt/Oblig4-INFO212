@@ -1,0 +1,53 @@
+@startuml mvc-architecture
+' Ekte Mat Online — MVC architecture sketch (OB4 §3; 01-plan §3, §6)
+!pragma layout smetana
+skinparam componentStyle rectangle
+
+actor "Browser\n(customer / admin)" as Browser
+
+package "app/views/templates (VIEW)" {
+  [shop/*.html] as VShop
+  [account/*.html] as VAccount
+  [admin/*.html] as VAdmin
+}
+
+package "app/controllers (CONTROLLER)" {
+  [shop blueprint\nC1 menu, C2 cart] as CShop
+  [account blueprint\nlogin/register, C3–C5] as CAccount
+  [admin blueprint\nA1–A4] as CAdmin
+}
+
+package "app/models (MODEL)" {
+  [Domain classes\nUser, FoodItem, EventCategory, Order,\nOrderLine, GuestGroup, Question, Cart, CartLine, enums] as Domain
+  [ImageService\n(placeholder / AI)] as Img
+  package "repositories" {
+    [Repository interfaces] as IRepo
+    [sqlite/ implementations] as SqliteRepo
+    [neo4j/ implementations\n(Oblig 5)] as NeoRepo #line.dashed
+  }
+}
+
+database "instance/ektemat.sqlite" as DB
+database "Neo4j\n(Oblig 5)" as Neo #line.dashed
+cloud "AI image service\n(key from .env)" as AI #line.dashed
+
+Browser --> CShop : HTTP
+Browser --> CAccount : HTTP
+Browser --> CAdmin : HTTP
+CShop --> VShop : render
+CAccount --> VAccount : render
+CAdmin --> VAdmin : render
+CShop --> Domain
+CAccount --> Domain
+CAdmin --> Domain
+CShop --> IRepo
+CAccount --> IRepo
+CAdmin --> IRepo
+CAdmin --> Img
+Img ..> AI
+IRepo <|.. SqliteRepo
+IRepo <|.. NeoRepo
+SqliteRepo --> DB : only place with SQL
+NeoRepo ..> Neo
+SqliteRepo --> Domain : returns domain objects
+@enduml

@@ -1,0 +1,65 @@
+@startuml sequence-checkout
+' Ekte Mat Online — sequence diagram: customer submits an order (C3; US-11, US-12, US-13)
+' Participants follow the MVC architecture (mvc-architecture.puml). Entity participants exist in domain-class.puml.
+!pragma layout smetana
+autonumber
+skinparam responseMessageBelowArrow true
+
+actor Customer
+boundary "checkout.html\n(view)" as View
+control "account blueprint\n(controller)" as Ctrl
+entity ":Cart" as Cart
+entity ":Order" as Order
+entity ":GuestGroup" as GG
+participant "UserRepository" as UserRepo <<repository>>
+participant "FoodItemRepository" as ItemRepo <<repository>>
+participant "OrderRepository" as OrderRepo <<repository>>
+database "SQLite\n(Neo4j in Oblig 5)" as DB
+
+Customer -> Ctrl : GET /account/checkout
+alt not logged in
+  Ctrl --> Customer : redirect to /account/login?next=/account/checkout
+  Customer -> Ctrl : POST /account/login (e-mail, password)
+  Ctrl -> UserRepo : get_by_email(email)
+  UserRepo -> DB : query
+  DB --> UserRepo : row
+  UserRepo --> Ctrl : User
+  Ctrl --> Customer : redirect to /account/checkout
+end
+Ctrl -> Cart : load from session
+alt cart is empty
+  Ctrl --> Customer : redirect to /menu
+end
+Ctrl -> View : render(cart, estimated total)
+View --> Customer : order form
+
+Customer -> Ctrl : POST /account/checkout\n(event date, guests, address, guest groups)
+Ctrl -> ItemRepo : get_many(item ids in cart)
+ItemRepo -> DB : query
+DB --> ItemRepo : rows
+ItemRepo --> Ctrl : FoodItem[*]
+Ctrl -> Order ** : create(customer, eventDate, guestCount, address, lines from cart)
+loop for each guest group in form
+  Order -> GG ** : create(label, count, allergies, notes)
+end
+Ctrl -> Order : validate()
+note right of Order
+  every line >= item min order (OB4 C2)
+  proposed rules (ASSUMPTION):
+  event date in the future (DV-04)
+  guests >= 1 (DV-01)
+  >= 1 guest group, counts <= guests (DV-11, US-13)
+end note
+alt invalid
+  Order --> Ctrl : errors
+  Ctrl -> View : render(form, errors)
+  View --> Customer : form with error messages
+else valid
+  Ctrl -> OrderRepo : add(order)
+  OrderRepo -> DB : INSERT order, lines, guest groups\n(one transaction)
+  DB --> OrderRepo : ok
+  OrderRepo --> Ctrl : Order (orderNumber,\nstatus = submitted, payment = not_paid)
+  Ctrl -> Cart : clear()
+  Ctrl --> Customer : redirect to confirmation page (order number)
+end
+@enduml
