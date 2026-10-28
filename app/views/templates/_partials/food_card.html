@@ -1,0 +1,32 @@
+{# One food item on the menu (C1): picture, price, minimum order and allergens (US-06 AC2). #}
+{% macro food_card(item) %}
+  <article class="food-card">
+    {% if item.image_filename %}
+      <img src="{{ url_for('shop.upload', filename=item.image_filename) }}" alt="{{ item.name }}"
+           width="400" height="300" loading="lazy">
+    {% else %}
+      <img src="{{ url_for('static', filename='img/placeholder.svg') }}" alt="No picture yet"
+           width="400" height="300" loading="lazy">
+    {% endif %}
+    <div class="food-card-body">
+      <h3>{{ item.name }}</h3>
+      {% if item.description %}<p class="food-description">{{ item.description }}</p>{% endif %}
+      <dl class="food-facts">
+        <div><dt>Price</dt><dd>{{ item.price_nok }} NOK per portion</dd></div>
+        <div><dt>Minimum order</dt><dd>{{ item.min_order_qty }} portions</dd></div>
+      </dl>
+      <p class="food-allergens"><strong>Allergens:</strong>
+        {% for allergen in item.allergens | sort %}
+          <span class="badge badge-allergen">{{ allergen.label }}</span>
+        {% else %}
+          none listed
+        {% endfor %}
+      </p>
+      {% if item.dietary_labels %}
+        <p class="food-labels">
+          {% for label in item.dietary_labels | sort %}<span class="badge badge-diet">{{ label.label }}</span>{% endfor %}
+        </p>
+      {% endif %}
+    </div>
+  </article>
+{% endmacro %}
