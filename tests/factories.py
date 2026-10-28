@@ -4,6 +4,12 @@ from datetime import date, timedelta
 from app.models.entities import GuestGroup, Order, OrderLine
 from app.models.enums import Allergen
 
+PASSWORD = "test-password"  # password of the customer/admin fixtures
+
+
+def log_in(client, email, password, next_url=""):
+    return client.post("/account/login", data={"email": email, "password": password, "next": next_url})
+
 
 def make_order(customer_id, food_item, days_ahead=30, guests=20, **kwargs):
     return Order(

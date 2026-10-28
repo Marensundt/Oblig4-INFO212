@@ -23,12 +23,16 @@ def test_menu_page(client):
     assert b"<h1>Menu</h1>" in response.data
 
 
-def test_account_placeholder(client):
-    assert client.get("/account/").status_code == 200
+def test_account_page_requires_login(client):
+    response = client.get("/account/")
+    assert response.status_code == 302
+    assert "/account/login" in response.headers["Location"]
 
 
-def test_admin_placeholder(client):
-    assert client.get("/admin/").status_code == 200
+def test_admin_page_requires_login(client):
+    response = client.get("/admin/")
+    assert response.status_code == 302
+    assert "/account/login" in response.headers["Location"]
 
 
 def test_unknown_page_returns_404_template(client):

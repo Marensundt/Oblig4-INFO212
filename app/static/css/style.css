@@ -4,6 +4,7 @@
   --bg: #fdfbf7;
   --accent: #5b6b2f;
   --border: #e2ddd2;
+  --error: #a4262c;
 }
 
 * { box-sizing: border-box; }
@@ -44,10 +45,76 @@ main {
   padding: 1rem;
 }
 
+.inline-form {
+  display: inline;
+  margin-left: 1rem;
+}
+
+.link-button {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--text);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .flash {
   padding: 0.5rem 1rem;
   border: 1px solid var(--border);
   border-radius: 4px;
+}
+
+.flash-success { border-color: var(--accent); }
+.flash-error { border-color: var(--error); }
+
+/* Forms */
+.form {
+  max-width: 28rem;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font: inherit;
+}
+
+.has-error input {
+  border-color: var(--error);
+}
+
+.field-errors {
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--error);
+}
+
+.field-errors li::before {
+  content: "⚠ ";  /* not colour alone (NFR-16) */
+}
+
+.button {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
 }
 
 .site-footer {
