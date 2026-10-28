@@ -1,0 +1,15 @@
+# Local SQLite database (development data, never committed)
+instance/
+*.sqlite
+*.sqlite3
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# macOS
+.DS_Store
