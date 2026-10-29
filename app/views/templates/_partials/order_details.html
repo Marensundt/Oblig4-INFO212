@@ -16,7 +16,7 @@
   <div class="table-wrap">
   <table class="data-table">
     <thead>
-      <tr><th scope="col">Food item</th><th scope="col">Price (NOK)</th><th scope="col">Portions</th><th scope="col">Line total (NOK)</th></tr>
+      <tr><th scope="col">Food item</th><th scope="col" class="num">Price (NOK)</th><th scope="col" class="num">Portions</th><th scope="col" class="num">Line total (NOK)</th></tr>
     </thead>
     <tbody>
       {% for line in order.lines %}
@@ -47,7 +47,7 @@
   <div class="table-wrap">
   <table class="data-table">
     <thead>
-      <tr><th scope="col">Group</th><th scope="col">Guests</th><th scope="col">Allergies</th><th scope="col">Dietary notes</th></tr>
+      <tr><th scope="col">Group</th><th scope="col" class="num">Guests</th><th scope="col">Allergies</th><th scope="col">Dietary notes</th></tr>
     </thead>
     <tbody>
       {% for group in order.guest_groups %}

@@ -294,3 +294,5 @@ main {
 .picture-compare { display: flex; flex-wrap: wrap; gap: 1.5rem; }
 .picture-compare figure { margin: 0; flex: 1 1 18rem; }
 .action-link { margin-left: 0.75rem; }
+.preview-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+.filter-form .button { margin-right: 0.75rem; }
