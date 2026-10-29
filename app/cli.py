@@ -14,7 +14,7 @@ def _init(yes):
 
 
 def _seed():
-    if seed(current_app.repos):
+    if seed(current_app.repos, current_app.images):
         click.echo("Seeded synthetic sample data.")
     else:
         click.echo("Database already contains data; nothing seeded.")
