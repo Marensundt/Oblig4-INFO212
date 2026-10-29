@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Cart — Ekte Mat Online{% endblock %}
+{% block content %}
+  <h1>Your cart</h1>
+
+  {% if lines %}
+  <div class="table-wrap">
+  <table class="data-table cart-table">
+    <thead>
+      <tr>
+        <th scope="col">Food item</th>
+        <th scope="col">Price (NOK)</th>
+        <th scope="col">Portions</th>
+        <th scope="col">Line total (NOK)</th>
+        <th scope="col"><span class="visually-hidden">Remove</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in lines %}
+      <tr>
+        <td>
+          {{ line.item.name }}
+          <br><small class="muted">Minimum order {{ line.item.min_order_qty }} portions</small>
+          {% if line.below_minimum %}
+            <p class="cart-warning">⚠ The minimum order has changed. Increase to at least
+              {{ line.item.min_order_qty }} portions.</p>
+          {% endif %}
+        </td>
+        <td class="num">{{ line.item.price_nok }}</td>
+        <td>
+          <form class="cart-quantity" method="post" action="{{ url_for('shop.cart_update') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="item_id" value="{{ line.item.id }}">
+            <label class="visually-hidden" for="qty-{{ line.item.id }}">Portions of {{ line.item.name }}</label>
+            <input id="qty-{{ line.item.id }}" type="number" name="quantity" inputmode="numeric"
+                   min="{{ line.item.min_order_qty }}" step="1" value="{{ line.quantity }}" required>
+            <button type="submit" class="link-button">Update</button>
+          </form>
+        </td>
+        <td class="num">{{ line.line_total_nok }}</td>
+        <td class="actions">
+          <form method="post" action="{{ url_for('shop.cart_remove', item_id=line.item.id) }}" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="link-button danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th scope="row" colspan="3">Estimated total</th>
+        <td class="num cart-total">{{ total_nok }} NOK</td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+  </div>
+  <p class="lead">The total is an estimate. Ekte Mat confirms the final price when your order is approved.</p>
+  <p><a href="{{ url_for('shop.menu') }}">← Continue shopping</a></p>
+  {% else %}
+    <p>Your cart is empty.</p>
+    <p><a class="button" href="{{ url_for('shop.menu') }}">See the menu</a></p>
+  {% endif %}
+{% endblock %}
