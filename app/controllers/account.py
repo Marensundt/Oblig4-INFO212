@@ -1,4 +1,4 @@
-"""Account blueprint: register/login/logout and checkout (C3), later C4 my orders, C5 questions."""
+"""Account blueprint: register/login/logout and checkout (C3), my orders (C4), later C5 questions."""
 from urllib.parse import urlsplit
 
 from flask import Blueprint, abort, current_app, flash, g, redirect, render_template, request, session, url_for
@@ -145,11 +145,31 @@ def checkout():
                            total_nok=estimated_total_nok(lines))
 
 
-@bp.get("/checkout/confirmation/<int:order_id>")
-@login_required
-def confirmation(order_id):
-    """US-12 AC1, US-13 AC1: order number, lines and guest groups. Only the customer's own orders."""
+def _own_order_or_404(order_id):
+    """Customers only see their own orders; others' orders are "not found" (US-17 AC2)."""
     order = current_app.repos.orders.get(order_id)
     if order is None or order.customer_id != g.user.id:
         abort(404)
-    return render_template("account/confirmation.html", order=order)
+    return order
+
+
+@bp.get("/checkout/confirmation/<int:order_id>")
+@login_required
+def confirmation(order_id):
+    """US-12 AC1, US-13 AC1: order number, lines and guest groups."""
+    return render_template("account/confirmation.html", order=_own_order_or_404(order_id))
+
+
+# --- C4 My orders ----------------------------------------------------------------------------
+
+@bp.get("/orders")
+@login_required
+def orders():
+    """US-17 AC1, AC3: own orders with current status and payment status."""
+    return render_template("account/orders.html", orders=current_app.repos.orders.list_for_customer(g.user.id))
+
+
+@bp.get("/orders/<int:order_id>")
+@login_required
+def order_detail(order_id):
+    return render_template("account/order_detail.html", order=_own_order_or_404(order_id))

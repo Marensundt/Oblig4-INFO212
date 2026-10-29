@@ -1,55 +1,11 @@
 {% extends "base.html" %}
+{% from "_partials/order_details.html" import order_facts, order_lines, guest_groups %}
 {% block title %}Order {{ order.order_number }} — Ekte Mat Online{% endblock %}
 {% block content %}
   <h1>Order {{ order.order_number }} received</h1>
   <p>Ekte Mat has received your order and will review it. You do not need to pay now.</p>
-
-  <dl class="order-facts">
-    <div><dt>Order number</dt><dd>{{ order.order_number }}</dd></div>
-    <div><dt>Order status</dt><dd>{{ order.status.label | capitalize }}</dd></div>
-    <div><dt>Payment status</dt><dd>{{ order.payment_status.label | capitalize }}</dd></div>
-    <div><dt>Event date</dt><dd>{{ order.event_date.strftime("%d.%m.%Y") }}</dd></div>
-    <div><dt>Number of guests</dt><dd>{{ order.guest_count }}</dd></div>
-    <div><dt>Delivery address</dt><dd class="address">{{ order.delivery_address }}</dd></div>
-  </dl>
-
-  <h2>Food</h2>
-  <div class="table-wrap">
-  <table class="data-table">
-    <thead>
-      <tr><th scope="col">Food item</th><th scope="col">Price (NOK)</th><th scope="col">Portions</th><th scope="col">Line total (NOK)</th></tr>
-    </thead>
-    <tbody>
-      {% for line in order.lines %}
-      <tr><td>{{ line.item_name }}</td><td class="num">{{ line.unit_price_nok }}</td><td class="num">{{ line.quantity }}</td><td class="num">{{ line.line_total_nok }}</td></tr>
-      {% endfor %}
-    </tbody>
-    <tfoot>
-      <tr><th scope="row" colspan="3">Estimated total</th><td class="num cart-total">{{ order.total_nok }} NOK</td></tr>
-    </tfoot>
-  </table>
-  </div>
-
-  <h2>Guest groups</h2>
-  <div class="table-wrap">
-  <table class="data-table">
-    <thead>
-      <tr><th scope="col">Group</th><th scope="col">Guests</th><th scope="col">Allergies</th><th scope="col">Dietary notes</th></tr>
-    </thead>
-    <tbody>
-      {% for group in order.guest_groups %}
-      <tr>
-        <td>{{ group.label }}</td>
-        <td class="num">{{ group.count }}</td>
-        <td>
-          {% for allergen in group.allergies | sort %}<span class="badge badge-allergen">{{ allergen.label }}</span>{% else %}None{% endfor %}
-        </td>
-        <td>{{ group.dietary_notes or "—" }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  </div>
-
-  <p><a href="{{ url_for('shop.menu') }}">← Back to the menu</a></p>
+  {{ order_facts(order) }}
+  {{ order_lines(order) }}
+  {{ guest_groups(order) }}
+  <p><a href="{{ url_for('account.orders') }}">See all my orders</a> · <a href="{{ url_for('shop.menu') }}">Back to the menu</a></p>
 {% endblock %}

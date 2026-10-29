@@ -1,0 +1,66 @@
+{# Order facts, food lines and guest groups. Used by the C3 confirmation, C4 order page and A3 order page. #}
+{% macro order_facts(order) %}
+  <dl class="order-facts">
+    <div><dt>Order number</dt><dd>{{ order.order_number }}</dd></div>
+    <div><dt>Order status</dt><dd>{{ order.status.label | capitalize }}</dd></div>
+    <div><dt>Payment status</dt><dd>{{ order.payment_status.label | capitalize }}</dd></div>
+    <div><dt>Event date</dt><dd>{{ order.event_date.strftime("%d.%m.%Y") }}</dd></div>
+    <div><dt>Number of guests</dt><dd>{{ order.guest_count }}</dd></div>
+    <div><dt>Delivery address</dt><dd class="address">{{ order.delivery_address }}</dd></div>
+    {% if order.created_at %}<div><dt>Ordered</dt><dd>{{ order.created_at.strftime("%d.%m.%Y %H:%M") }}</dd></div>{% endif %}
+  </dl>
+{% endmacro %}
+
+{% macro order_lines(order) %}
+  <h2>Food</h2>
+  <div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr><th scope="col">Food item</th><th scope="col">Price (NOK)</th><th scope="col">Portions</th><th scope="col">Line total (NOK)</th></tr>
+    </thead>
+    <tbody>
+      {% for line in order.lines %}
+      <tr><td>{{ line.item_name }}</td><td class="num">{{ line.unit_price_nok }}</td><td class="num">{{ line.quantity }}</td><td class="num">{{ line.line_total_nok }}</td></tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr><th scope="row" colspan="3">Estimated total</th><td class="num cart-total">{{ order.total_nok }} NOK</td></tr>
+    </tfoot>
+  </table>
+  </div>
+{% endmacro %}
+
+{% macro guest_groups(order, highlight=False) %}
+  <h2>Guest groups</h2>
+  {% set with_allergies = order.guest_groups | selectattr("allergies") | list %}
+  {% if highlight and with_allergies %}
+    {# US-15 AC1: allergies highlighted for staff (INT-S "nut incident") #}
+    <div class="allergy-alert" role="note">
+      <strong>⚠ Allergies in this order:</strong>
+      <ul>
+        {% for group in with_allergies %}
+          <li>{{ group.label }} ({{ group.count }} guests): {{ group.allergies | map(attribute="label") | sort | join(", ") }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+  <div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr><th scope="col">Group</th><th scope="col">Guests</th><th scope="col">Allergies</th><th scope="col">Dietary notes</th></tr>
+    </thead>
+    <tbody>
+      {% for group in order.guest_groups %}
+      <tr{% if highlight and group.allergies %} class="row-allergy"{% endif %}>
+        <td>{{ group.label }}</td>
+        <td class="num">{{ group.count }}</td>
+        <td>
+          {% for allergen in group.allergies | sort %}<span class="badge badge-allergen">{{ allergen.label }}</span>{% else %}None{% endfor %}
+        </td>
+        <td>{{ group.dietary_notes or "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+{% endmacro %}
