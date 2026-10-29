@@ -46,6 +46,8 @@ The start page is the **menu** (`/menu`): published food items as cards grouped 
 
 Each card has an **Add to cart** form. The **cart** (`/cart`) lists the items with price × portions and an estimated total; you can change portions or remove items. Quantities below an item's minimum order are rejected with a message. The cart is kept in your browser session, also when you log in.
 
+From the cart, **Continue to order** (`/account/checkout`) asks you to log in or register and then shows the order form: event date, number of guests, delivery address and one or more guest groups with allergies and dietary notes (no guest names). There is no payment step; the order is saved as *submitted* / *not paid* and you see a confirmation with the order number.
+
 Log in at http://127.0.0.1:5000/account/login with a demo account (see above), or register a new customer account at `/account/register`. The admin panel (`/admin/`) is only available to the admin account; customers get "Access denied".
 
 As admin you can manage the food items at `/admin/food`: add, edit, publish/unpublish and delete (items that are part of an order can only be unpublished).
