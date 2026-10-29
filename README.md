@@ -44,6 +44,8 @@ Open http://127.0.0.1:5000
 
 The start page is the **menu** (`/menu`): published food items as cards grouped by kind of event, each with picture, price, minimum order and allergens. No login is needed to browse.
 
+Each card has an **Add to cart** form. The **cart** (`/cart`) lists the items with price × portions and an estimated total; you can change portions or remove items. Quantities below an item's minimum order are rejected with a message. The cart is kept in your browser session, also when you log in.
+
 Log in at http://127.0.0.1:5000/account/login with a demo account (see above), or register a new customer account at `/account/register`. The admin panel (`/admin/`) is only available to the admin account; customers get "Access denied".
 
 As admin you can manage the food items at `/admin/food`: add, edit, publish/unpublish and delete (items that are part of an order can only be unpublished).
