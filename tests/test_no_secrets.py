@@ -1,10 +1,13 @@
-"""No API key or secret in the repository (OB4 §3 "make sure that your project does not include Claude API key")."""
+"""No API key or secret in the repository (OB4 §3 "make sure that your project does not include Claude API key").
+
+`test_smoke.test_no_api_keys_in_source` scans all source files for Claude keys; this file adds the
+git-specific checks: no filled-in values in tracked env files, and `.env` itself is ignored.
+"""
 import re
 import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-API_KEY = re.compile(r"sk-ant-[A-Za-z0-9_-]{10,}")
 # A filled-in value in an env-style file (.env.example must keep the values empty)
 ENV_VALUE = re.compile(r"^[ \t]*(ANTHROPIC_API_KEY|SECRET_KEY)[ \t]*=[ \t]*[^\s#]", re.M)
 
@@ -14,14 +17,11 @@ def tracked_files():
     return [ROOT / name for name in result.stdout.splitlines()]
 
 
-def test_no_api_key_in_tracked_files():
-    found = []
-    for path in tracked_files():
-        if not path.is_file() or path.suffix in {".png", ".jpg", ".pdf", ".docx"}:
-            continue
-        text = path.read_text(encoding="utf-8", errors="ignore")
-        if API_KEY.search(text) or (path.name.startswith(".env") and ENV_VALUE.search(text)):
-            found.append(str(path.relative_to(ROOT)))
+def test_no_secret_values_in_tracked_env_files():
+    env_files = [path for path in tracked_files() if path.name.startswith(".env") and path.is_file()]
+    assert env_files, ".env.example should be tracked"
+    found = [str(path.relative_to(ROOT)) for path in env_files
+             if ENV_VALUE.search(path.read_text(encoding="utf-8"))]
     assert found == []
 
 

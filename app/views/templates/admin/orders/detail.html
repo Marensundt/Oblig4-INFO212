@@ -18,18 +18,18 @@
 
   <div class="manage-forms">
     <form method="post" action="{{ url_for('admin.order_status', order_id=order.id) }}" class="form">
-      {{ status_form.hidden_tag() }}
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       {% if order.status.next_statuses %}
         {{ field(status_form.status) }}
-        {{ status_form.submit(class="button") }}
+        {{ status_form.submit(class="button", id="status-submit") }}
       {% else %}
         <p><strong>Order status:</strong> {{ order.status.label | capitalize }} is final and cannot be changed.</p>
       {% endif %}
     </form>
     <form method="post" action="{{ url_for('admin.order_payment', order_id=order.id) }}" class="form">
-      {{ payment_form.hidden_tag() }}
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       {{ field(payment_form.payment_status) }}
-      {{ payment_form.submit(class="button") }}
+      {{ payment_form.submit(class="button", id="payment-submit") }}
     </form>
   </div>
 

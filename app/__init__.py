@@ -76,4 +76,10 @@ def create_app(config_class=Config, overrides=None):
     def not_found(error):
         return render_template("errors/404.html"), 404
 
+    @app.errorhandler(500)
+    def server_error(error):
+        # Details go to the log, never to the visitor
+        app.logger.exception("Unhandled error: %s", getattr(error, "original_exception", error))
+        return render_template("errors/500.html"), 500
+
     return app

@@ -2,21 +2,21 @@
 
 Links every official Oblig 4 requirement to stories, use cases, domain classes, implementation phases (`docs/plans/01-implementation-plan.md` §8), tests and report screenshots (OB4 §5 part 2).
 Sources: OB4 = official assignment; stories in `user-stories.md`; UC in `docs/design/use-case.puml`; classes in `docs/design/domain-class.puml`; NFR in `non-functional.md`; DV in `data-validation-rules.md`.
-"Tests" are planned test modules (to be created in the phases; none exist yet).
+"Tests" are the test modules that check each requirement (updated 2026-10-29, phase 10). `tests/test_walkthrough.py` runs all of A1–A4 and C1–C5 end to end on the seeded data.
 
 ## 1. Functional requirements (OB4 §2, minimum — all Must)
 
-| OB4 | Stories | Use cases | Domain classes | Phase | Planned tests | Report screenshot (OB4 §5.2) |
+| OB4 | Stories | Use cases | Domain classes | Phase | Tests | Report screenshot (OB4 §5.2) |
 |---|---|---|---|---|---|---|
-| A1 Food items | US-01, US-02, US-03 | UC-10 | FoodItem, EventCategory, Allergen, DietaryLabel | 3 | `tests/controllers/test_admin_food.py`, `tests/repositories/test_food_item_repository.py` | Admin: food item page |
-| A2 Images | US-04, US-05 | UC-11, UC-12, UC-13 | FoodItem.imageFile (+ ImageService, model layer) | 9 | `tests/controllers/test_admin_images.py`, `tests/unit/test_image_service.py` | Admin: image page |
-| A3 Orders | US-14, US-15, US-16 | UC-14, UC-15, UC-16 | Order, OrderLine, GuestGroup, OrderStatus, PaymentStatus | 7 | `tests/controllers/test_admin_orders.py`, `tests/unit/test_order_status.py` | Admin: order list, order page |
-| A4 Questions | US-20 | UC-17 | Question, User | 8 | `tests/controllers/test_admin_questions.py` | (shown on admin order page) |
+| A1 Food items | US-01, US-02, US-03 | UC-10 | FoodItem, EventCategory, Allergen, DietaryLabel | 3 | `tests/controllers/test_admin_food.py`, `tests/unit/test_catalogue.py`, `tests/repositories/test_food_item_repository.py` | Admin: food item page |
+| A2 Images | US-04, US-05 | UC-11, UC-12, UC-13 | FoodItem.imageFile (+ ImageService, model layer) | 9 | `tests/controllers/test_admin_images.py`, `tests/unit/test_images.py`, `tests/unit/test_image_service.py` | Admin: image page |
+| A3 Orders | US-14, US-15, US-16 | UC-14, UC-15, UC-16 | Order, OrderLine, GuestGroup, OrderStatus, PaymentStatus | 7 | `tests/controllers/test_admin_orders.py`, `tests/unit/test_enums.py`, `tests/repositories/test_order_repository.py` | Admin: order list, order page |
+| A4 Questions | US-20 | UC-17 | Question, User | 8 | `tests/controllers/test_admin_questions.py`, `tests/unit/test_questions.py` | (shown on admin order page) |
 | C1 Menu by event | US-06 | UC-01 | FoodItem, EventCategory | 4 | `tests/controllers/test_shop_menu.py` | Customer: menu |
 | C2 Shopping cart | US-08, US-09 | UC-02 | Cart, CartLine, FoodItem | 5 | `tests/unit/test_cart.py`, `tests/controllers/test_shop_cart.py` | Customer: cart |
-| C3 Order | US-10, US-11, US-12, US-13 | UC-03, UC-04, UC-05, UC-06 | User, Order, OrderLine, GuestGroup | 2, 6 | `tests/controllers/test_account_auth.py`, `tests/controllers/test_account_checkout.py` | Customer: order form |
+| C3 Order | US-10, US-11, US-12, US-13 | UC-03, UC-04, UC-05, UC-06 | User, Order, OrderLine, GuestGroup | 2, 6 | `tests/controllers/test_account_auth.py`, `tests/controllers/test_account_checkout.py`, `tests/unit/test_ordering.py` | Customer: order form |
 | C4 My orders | US-17 | UC-07 | Order, OrderStatus, PaymentStatus | 7 | `tests/controllers/test_account_orders.py` | Customer: my orders |
-| C5 Questions | US-18, US-19 | UC-08, UC-09 | Question | 8 | `tests/controllers/test_account_questions.py` | Customer: questions |
+| C5 Questions | US-18, US-19 | UC-08, UC-09 | Question | 8 | `tests/controllers/test_account_questions.py`, `tests/unit/test_questions.py` | Customer: questions |
 
 Clause-level coverage (each part of each requirement → acceptance criterion): see the coverage table in `user-stories.md`.
 
@@ -26,9 +26,9 @@ Clause-level coverage (each part of each requirement → acceptance criterion): 
 |---|---|---|---|
 | §3 MVC with Flask; three layers visible in folders | NFR-01; `mvc-architecture.puml`; 01-plan §3 | 0 | Folder structure; report part 3 |
 | §3 Blueprints (e.g. shop, account, admin) | NFR-01; 01-plan §3, §5 | 0 | `app/controllers/` |
-| §3 Only repository classes in the model layer touch storage; Neo4j can replace it without changing controllers/views | NFR-02; `mvc-architecture.puml`; `domain-class.puml` | 1 | grep check in tests; review |
+| §3 Only repository classes in the model layer touch storage; Neo4j can replace it without changing controllers/views | NFR-02; `mvc-architecture.puml`; `domain-class.puml` | 1 | `tests/test_smoke.py::test_sqlite_only_in_repositories`; review |
 | §3 Front end HTML/CSS/JS | 01-plan §1 (Jinja2 templates) | 0–10 | `app/views/templates/`, `app/static/` |
-| §3 No Claude API key in the repository | NFR-03; US-05 AC4; NFR-19 | 0, 9, 10 | Secret search before PRs and tag |
+| §3 No Claude API key in the repository | NFR-03; US-05 AC4; NFR-19 | 0, 9, 10 | `tests/test_smoke.py::test_no_api_keys_in_source`, `tests/test_no_secrets.py`; `git grep` on working tree and history before the tag |
 | §3 Customer login | US-10, US-11; NFR-04 | 2 | Auth tests |
 | §3 Synthetic data only; seed script with food items, admin, test customers | US-22; NFR-08 | 1 | Seed script; README |
 | §3 README: install, seed, run, test | US-22; NFR-09 | 0, 10 | README walkthrough by every member |
@@ -39,7 +39,7 @@ Clause-level coverage (each part of each requirement → acceptance criterion): 
 | §5.2 Features with screenshots (9 screens) | Column "Report screenshot" in table 1 | 10 | Report |
 | §5.3 Software design with diagrams and how each was used | `docs/design/README.md`; user stories | done (draft) | Report |
 | §5.4 Did design help? | — | 10 | Report paragraph |
-| Approval: executable app, functionality, MVC, report parts 1–4 | All of the above | 10 | Manual walkthrough (01-plan §8) |
+| Approval: executable app, functionality, MVC, report parts 1–4 | All of the above | 10 | `tests/test_walkthrough.py` (01-plan §8 walkthrough, automated) + one manual run in a browser before submission |
 
 ## 3. Optional "going further" (OB4 §2) — Should
 

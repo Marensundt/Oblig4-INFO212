@@ -21,9 +21,9 @@
     <section aria-labelledby="upload-heading">
       <h2 id="upload-heading">Upload a picture</h2>
       <form method="post" action="{{ url_for('admin.food_image_upload', item_id=item.id) }}" enctype="multipart/form-data" class="form" novalidate>
-        {{ upload_form.hidden_tag() }}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         {{ field(upload_form.picture) }}
-        {{ upload_form.submit(class="button") }}
+        {{ upload_form.submit(class="button", id="upload-submit") }}
       </form>
     </section>
 
@@ -32,7 +32,7 @@
       <p class="muted">Image service: {{ service_name }}.
         {% if service_name == "offline placeholder" %}Set ANTHROPIC_API_KEY in .env to let Claude draw an SVG picture.{% endif %}</p>
       <form method="post" action="{{ url_for('admin.food_image_generate', item_id=item.id) }}" class="form" novalidate>
-        {{ instruction_form.hidden_tag() }}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         {{ field(instruction_form.instruction) }}
         <fieldset class="field">
           <legend>{{ instruction_form.mode.label.text }}</legend>
@@ -46,7 +46,7 @@
             </div>
           {% endfor %}
         </fieldset>
-        {{ instruction_form.submit(class="button") }}
+        {{ instruction_form.submit(class="button", id="generate-submit") }}
       </form>
     </section>
   </div>

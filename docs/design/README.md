@@ -39,3 +39,13 @@ All five diagrams pass `-checkonly` and were inspected after rendering: all elem
 **Differences to 01-plan §4 (to update after review):** `CartLine` added (the plan only had a session dict); `Question.answeredBy` modelled as association to `User`; `FoodItem.unit` dropped (all prices are per person in the data pack).
 
 **Not modelled (deliberately):** company accounts, ingredients/suppliers, capacity, payments — Should/Won't items (`user-stories.md` E6, W-01 – W-10).
+
+## Check against the code (2026-10-29, phase 10)
+
+| Diagram | Matches the code? |
+|---|---|
+| Use case | ✔ Every use case has a working page; `tests/test_walkthrough.py` runs them end to end |
+| Domain class | ✔ Same classes, attributes and constraints as `app/models/entities.py` and `enums.py` (analysis model: no technical ids or foreign keys); constraints enforced in `cart.py`, `ordering.py`, `questions.py` and the SQLite schema |
+| Sequence (checkout) | ✔ Updated in phase 6: `validate()` is `place_order()` in `app/models/ordering.py` |
+| State machine | ✔ `ALLOWED_TRANSITIONS` in `app/models/enums.py`; the admin status form only offers `OrderStatus.next_statuses` |
+| MVC architecture | ✔ Updated in phase 10: domain-rule modules, `ImageStorage` and `instance/uploads` added; controllers reach the database only through repository interfaces (`tests/test_smoke.py`) |
