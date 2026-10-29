@@ -11,6 +11,8 @@ from flask import Flask, render_template
 from flask_wtf import CSRFProtect
 
 from app.models.errors import StorageNotInitialised
+from app.models.image_service import build_image_service
+from app.models.images import ImageStorage
 from app.models.repositories.factory import build_repositories
 from config import Config
 
@@ -37,6 +39,9 @@ def create_app(config_class=Config, overrides=None):
 
     # Controllers reach storage only through these repositories.
     app.repos = build_repositories(app.config)
+    # Food item pictures (A2): files in UPLOAD_FOLDER and the image service (offline placeholder or Claude).
+    app.images = ImageStorage(app.config["UPLOAD_FOLDER"])
+    app.image_service = build_image_service(app.config)
 
     from app.cli import register_cli
 
@@ -62,6 +67,10 @@ def create_app(config_class=Config, overrides=None):
     def storage_not_initialised(error):
         app.logger.error("Database not initialised: %s", error)
         return render_template("errors/database.html"), 503
+
+    @app.errorhandler(413)
+    def too_large(error):
+        return render_template("errors/413.html"), 413
 
     @app.errorhandler(404)
     def not_found(error):

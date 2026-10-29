@@ -285,3 +285,12 @@ main {
 .answer { border-left: 3px solid var(--accent); padding-left: 0.75rem; margin-top: 0.5rem; }
 .waiting-badge { border-color: #8a6d00; color: #8a6d00; }
 .answer-form { margin-top: 0.5rem; }
+
+/* A2 pictures */
+.picture-current img, .picture-compare img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 4px; background: #fff; }
+.picture-current figcaption, .picture-compare figcaption { color: var(--muted); }
+.picture-forms { display: flex; flex-wrap: wrap; gap: 2rem; }
+.picture-forms section { flex: 1 1 20rem; }
+.picture-compare { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+.picture-compare figure { margin: 0; flex: 1 1 18rem; }
+.action-link { margin-left: 0.75rem; }

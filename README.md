@@ -54,6 +54,8 @@ Log in at http://127.0.0.1:5000/account/login with a demo account (see above), o
 
 As admin you can manage the food items at `/admin/food`: add, edit, publish/unpublish and delete (items that are part of an order can only be unpublished).
 
+Each food item has a **Picture** page (`/admin/food/<id>/image`): upload a JPG, PNG, WebP or SVG (max 2 MB), or write an instruction to create a new picture or modify the current SVG. Every new picture is shown as a preview and only replaces the current one when you choose **Save**; **Discard** leaves the item unchanged. Without an API key an offline placeholder service draws a simple picture. To let Claude draw SVG pictures, put `ANTHROPIC_API_KEY=...` in your local `.env` (git-ignored, see `.env.example`); never commit the key.
+
 As admin you manage orders at `/admin/orders`: filter by status and event date, open an order to see its lines and guest groups (allergies highlighted), change the order status (only the allowed next steps: submitted → approved → in preparation → delivered, or rejected/cancelled) and set the payment status by hand.
 
 Customer **questions** are at `/admin/questions` (unanswered first, each linked to its order) and on each order page; the admin answers there, and the customer sees the answer on their order page. The admin start page shows how many orders wait for approval and how many questions are unanswered.

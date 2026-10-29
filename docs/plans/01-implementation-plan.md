@@ -291,7 +291,7 @@ The PDF report and the assignment PDF are kept **outside the repository** [DECIS
 | **OPEN-1** | Repository access: the PDF says "public, private and shared with the course staff" — contradictory. **Checked 28 Oct 2026: `Marensundt/Oblig4-INFO212` is private** (not visible via the public GitHub API). | Most likely meaning: public, *or* private and shared with course staff. Do **not** change visibility; before submission, invite the course staff as collaborators or confirm the rule with the TA. |
 | **OPEN-2** | "Only customer login pages are fine" — ambiguous: simple login is sufficient, or no admin login needed? | Plan keeps an admin role with login (protects A1–A4); confirm with TA. |
 | ~~OPEN-3~~ **resolved 2026-10-28** | Lab 7 backlog and models were not completed by the group. | Replaced by `docs/backlog/` and `docs/design/` (plan 02), using Lab 7 as guidance and Oblig 4 as priority. §2 and §4 now link to them. |
-| **OPEN-4** | A2 "AI agent or image service": Claude cannot output bitmap images. | Proposed: Claude writes/modifies an **SVG** from the instruction [ASSUMPTION]; placeholder service as offline default. Confirm before phase 9. |
+| ~~OPEN-4~~ **resolved 2026-10-29** | A2 "AI agent or image service": Claude cannot output bitmap images. | Decided in `docs/plans/09`: Claude writes/modifies an **SVG** from the instruction [ASSUMPTION]; offline placeholder service as default when no API key is set. |
 | **OPEN-5** | Deadline: "see Mitt UiB". | Team to fill in and back-plan phases. |
 | **OPEN-6** | Seed minimum orders, categories and allergens are not in the data pack. | Marked [ASSUMPTION] in §7; confirm against Lab 7 backlog. |
 | **OPEN-7** | Case says 3 developers; our group has 4. | Plan uses 4 (assignment allows 2–4). |

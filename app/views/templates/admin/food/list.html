@@ -35,6 +35,7 @@
         </td>
         <td class="actions">
           <a href="{{ url_for('admin.food_edit', item_id=item.id) }}">Edit</a>
+          <a href="{{ url_for('admin.food_image', item_id=item.id) }}" class="action-link">Picture</a>
           <form method="post" action="{{ url_for('admin.food_publish', item_id=item.id) }}" class="inline-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="published" value="{{ '0' if item.published else '1' }}">
