@@ -1,15 +1,16 @@
 """Admin blueprint: A1 food items, A2 images, A3 orders, A4 questions. Staff only (US-21)."""
 from dataclasses import replace
 
-from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, current_app, flash, g, redirect, render_template, request, url_for
 from wtforms import SelectChoice
 
 from app.controllers.decorators import admin_required
-from app.controllers.forms import FoodItemForm, OrderFilterForm, OrderStatusForm, PaymentStatusForm
+from app.controllers.forms import AnswerForm, FoodItemForm, OrderFilterForm, OrderStatusForm, PaymentStatusForm
 from app.models.catalogue import delete_food_item, set_published
 from app.models.entities import FoodItem
 from app.models.enums import Allergen, DietaryLabel, OrderStatus, PaymentStatus
-from app.models.errors import InvalidStatusTransition, ItemInUse, NotFound
+from app.models.errors import AlreadyAnswered, InvalidQuestion, InvalidStatusTransition, ItemInUse, NotFound
+from app.models.questions import answer_question
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -18,7 +19,8 @@ bp = Blueprint("admin", __name__, url_prefix="/admin")
 @admin_required
 def index():
     waiting = len(current_app.repos.orders.list(status=OrderStatus.SUBMITTED))
-    return render_template("admin/index.html", orders_waiting=waiting)
+    unanswered = sum(not q.is_answered for q in current_app.repos.questions.list_all())
+    return render_template("admin/index.html", orders_waiting=waiting, questions_unanswered=unanswered)
 
 
 # --- A1 Food items -------------------------------------------------------------------------
@@ -144,7 +146,8 @@ def order_detail(order_id):
     payment_form = PaymentStatusForm(payment_status=order.payment_status.value)
     return render_template("admin/orders/detail.html", order=order,
                            customer=current_app.repos.users.get(order.customer_id),
-                           status_form=_status_form(order), payment_form=payment_form)
+                           status_form=_status_form(order), payment_form=payment_form,
+                           questions=current_app.repos.questions.list_for_order(order.id))
 
 
 @bp.post("/orders/<int:order_id>/status")
@@ -178,3 +181,38 @@ def order_payment(order_id):
     else:
         flash("Choose a valid payment status.", "error")
     return redirect(url_for("admin.order_detail", order_id=order_id))
+
+
+# --- A4 Questions --------------------------------------------------------------------------
+
+@bp.get("/questions")
+@admin_required
+def question_list():
+    """US-20 AC1: all questions, unanswered first, each with its order and customer."""
+    questions = current_app.repos.questions.list_all()
+    orders = {order.id: order for order in current_app.repos.orders.list()}
+    customers = {user.id: user for user in current_app.repos.users.list_customers()}
+    return render_template("admin/questions/list.html", questions=questions, orders=orders, customers=customers)
+
+
+@bp.post("/questions/<int:question_id>/answer")
+@admin_required
+def question_answer(question_id):
+    """US-20 AC2, AC3: store the answer with the admin and the time; empty answers are rejected."""
+    question = current_app.repos.questions.get(question_id)
+    if question is None:
+        abort(404)
+    form = AnswerForm()
+    if form.from_order.data:
+        back = url_for("admin.order_detail", order_id=question.order_id) + "#questions"
+    else:
+        back = url_for("admin.question_list")
+    try:
+        if not form.validate_on_submit():
+            raise InvalidQuestion("Write your answer first.")
+        answer_question(current_app.repos, g.user, question_id, form.text.data)
+    except (InvalidQuestion, AlreadyAnswered) as error:
+        flash(f"Answer not saved. {error}", "error")
+    else:
+        flash("The answer has been sent. The customer sees it on the order page.", "success")
+    return redirect(back)
