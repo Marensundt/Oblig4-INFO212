@@ -46,3 +46,14 @@ class BelowMinimumOrder(InvalidQuantity):
 
 class ItemNotAvailable(DomainError):
     """The food item does not exist or is not published, so it cannot be in the cart."""
+
+
+class InvalidOrder(DomainError):
+    """The order breaks one or more order rules (C3; US-12, US-13).
+
+    `errors` maps a field ("event_date", "guest_count", "guest_groups", "cart") to a message for the customer.
+    """
+
+    def __init__(self, errors):
+        super().__init__("; ".join(errors.values()))
+        self.errors = errors

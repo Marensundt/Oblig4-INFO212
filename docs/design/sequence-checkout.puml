@@ -44,6 +44,8 @@ loop for each guest group in form
 end
 Ctrl -> Order : validate()
 note right of Order
+  implemented as place_order() in
+  app/models/ordering.py (model layer)
   every line >= item min order (OB4 C2)
   proposed rules (ASSUMPTION):
   event date in the future (DV-04)
