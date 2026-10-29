@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Preview picture — Admin — Ekte Mat Online{% endblock %}
+{% block content %}
+  <p><a href="{{ url_for('admin.food_image', item_id=item.id) }}">← Picture of “{{ item.name }}”</a></p>
+  <h1>Preview: new picture of “{{ item.name }}”</h1>
+  <p class="lead">Source: {{ "uploaded file" if pending.source == "upload" else pending.source }}</p>
+
+  <div class="picture-compare">
+    <figure>
+      <img src="{{ url_for('admin.food_image_pending', item_id=item.id) }}" alt="New picture of {{ item.name }}" width="400" height="300">
+      <figcaption><strong>New picture</strong> (not saved yet)</figcaption>
+    </figure>
+    <figure>
+      {% if item.image_filename %}
+        <img src="{{ url_for('shop.upload', filename=item.image_filename) }}" alt="Current picture of {{ item.name }}" width="400" height="300">
+      {% else %}
+        <img src="{{ url_for('static', filename='img/placeholder.svg') }}" alt="No picture yet" width="400" height="300">
+      {% endif %}
+      <figcaption>Current picture</figcaption>
+    </figure>
+  </div>
+
+  <div class="actions">
+    <form method="post" action="{{ url_for('admin.food_image_save', item_id=item.id) }}" class="inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="button">Save picture</button>
+    </form>
+    <form method="post" action="{{ url_for('admin.food_image_discard', item_id=item.id) }}" class="inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="button button-secondary">Discard</button>
+    </form>
+  </div>
+{% endblock %}

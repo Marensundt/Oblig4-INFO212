@@ -97,4 +97,12 @@ def cart_remove(item_id):
 @bp.get("/uploads/<path:filename>")
 def upload(filename):
     """Food item pictures. send_from_directory refuses paths outside the folder (404)."""
-    return send_from_directory(current_app.config["UPLOAD_FOLDER"], filename, max_age=3600)
+    response = send_from_directory(current_app.config["UPLOAD_FOLDER"], filename, max_age=3600)
+    return picture_headers(response)
+
+
+def picture_headers(response):
+    """An SVG opened on its own must not run scripts or load anything (A2 security, docs/plans/09)."""
+    response.headers["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response

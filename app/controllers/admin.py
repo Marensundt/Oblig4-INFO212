@@ -1,15 +1,19 @@
 """Admin blueprint: A1 food items, A2 images, A3 orders, A4 questions. Staff only (US-21)."""
 from dataclasses import replace
 
-from flask import Blueprint, abort, current_app, flash, g, redirect, render_template, request, url_for
+from flask import (Blueprint, abort, current_app, flash, g, redirect, render_template, request, send_file,
+                   session, url_for)
 from wtforms import SelectChoice
 
 from app.controllers.decorators import admin_required
-from app.controllers.forms import AnswerForm, FoodItemForm, OrderFilterForm, OrderStatusForm, PaymentStatusForm
+from app.controllers.forms import (AnswerForm, FoodItemForm, ImageInstructionForm, ImageUploadForm, OrderFilterForm,
+                                   OrderStatusForm, PaymentStatusForm)
+from app.controllers.shop import picture_headers
 from app.models.catalogue import delete_food_item, set_published
 from app.models.entities import FoodItem
 from app.models.enums import Allergen, DietaryLabel, OrderStatus, PaymentStatus
 from app.models.errors import AlreadyAnswered, InvalidQuestion, InvalidStatusTransition, ItemInUse, NotFound
+from app.models.images import ImageError, check_instruction, check_upload, extension_of
 from app.models.questions import answer_question
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -107,6 +111,137 @@ def food_delete(item_id):
     else:
         flash(f"“{item.name}” was deleted.", "success")
     return redirect(url_for("admin.food_list"))
+
+
+# --- A2 Images -----------------------------------------------------------------------------
+# A new picture is "pending" until the admin saves it after the preview (OB4 A2).
+PENDING_KEY = "pending_image"
+
+
+def _pending_for(item_id):
+    pending = session.get(PENDING_KEY)
+    return pending if pending and pending.get("item_id") == item_id else None
+
+
+def _set_pending(item_id, name, source):
+    _drop_pending()
+    session[PENDING_KEY] = {"item_id": item_id, "name": name, "source": source}
+
+
+def _drop_pending():
+    pending = session.pop(PENDING_KEY, None)
+    if pending:
+        current_app.images.discard_pending(pending["name"])
+
+
+def _image_page(item, upload_form=None, instruction_form=None):
+    return render_template(
+        "admin/food/image.html", item=item, service_name=current_app.image_service.name,
+        upload_form=upload_form or ImageUploadForm(), instruction_form=instruction_form or ImageInstructionForm(),
+        can_modify=extension_of(item.image_filename) == "svg",
+    )
+
+
+@bp.get("/food/<int:item_id>/image")
+@admin_required
+def food_image(item_id):
+    """US-04, US-05: upload a picture or write an instruction."""
+    return _image_page(_get_item_or_404(item_id))
+
+
+@bp.post("/food/<int:item_id>/image/upload")
+@admin_required
+def food_image_upload(item_id):
+    item = _get_item_or_404(item_id)
+    form = ImageUploadForm()
+    if form.validate_on_submit():
+        data = form.picture.data.read()
+        try:
+            ext = check_upload(form.picture.data.filename, data)
+        except ImageError as error:
+            form.picture.errors.append(str(error))
+        else:
+            _set_pending(item.id, current_app.images.add_pending(item.id, ext, data), "upload")
+            return redirect(url_for("admin.food_image_preview", item_id=item.id))
+    return _image_page(item, upload_form=form)
+
+
+@bp.post("/food/<int:item_id>/image/generate")
+@admin_required
+def food_image_generate(item_id):
+    item = _get_item_or_404(item_id)
+    form = ImageInstructionForm()
+    if form.validate_on_submit():
+        try:
+            instruction = check_instruction(form.instruction.data)
+            current_svg = None
+            if form.mode.data == "modify":
+                if extension_of(item.image_filename) != "svg":
+                    raise ImageError("Only SVG pictures can be modified. Create a new picture instead.")
+                current_svg = (current_app.images.read(item.image_filename) or b"").decode("utf-8", "replace")
+            svg = current_app.image_service.create_svg(item, instruction, current_svg)
+        except ImageError as error:
+            form.instruction.errors.append(str(error))
+        else:
+            name = current_app.images.add_pending(item.id, "svg", svg.encode("utf-8"))
+            _set_pending(item.id, name, f"{current_app.image_service.name}: “{instruction}”")
+            return redirect(url_for("admin.food_image_preview", item_id=item.id))
+    return _image_page(item, instruction_form=form)
+
+
+@bp.get("/food/<int:item_id>/image/preview")
+@admin_required
+def food_image_preview(item_id):
+    """OB4 A2: the admin previews the result before it is saved."""
+    item = _get_item_or_404(item_id)
+    pending = _pending_for(item.id)
+    if pending is None:
+        flash("There is no new picture to preview. Upload or create one first.", "info")
+        return redirect(url_for("admin.food_image", item_id=item.id))
+    return render_template("admin/food/image_preview.html", item=item, pending=pending)
+
+
+@bp.get("/food/<int:item_id>/image/pending")
+@admin_required
+def food_image_pending(item_id):
+    pending = _pending_for(item_id)
+    if pending is None:
+        abort(404)
+    try:
+        path = current_app.images.pending_path(pending["name"])
+    except ImageError:
+        abort(404)
+    return picture_headers(send_file(path, max_age=0))
+
+
+@bp.post("/food/<int:item_id>/image/save")
+@admin_required
+def food_image_save(item_id):
+    item = _get_item_or_404(item_id)
+    pending = _pending_for(item.id)
+    try:
+        if pending is None:
+            raise ImageError("There is no new picture to save. Upload or create one again.")
+        filename = current_app.images.save_pending(pending["name"])
+    except ImageError as error:
+        flash(str(error), "error")
+        return redirect(url_for("admin.food_image", item_id=item.id))
+    session.pop(PENDING_KEY, None)
+    old = item.image_filename
+    current_app.repos.food_items.update(replace(item, image_filename=filename))
+    current_app.images.delete(old)
+    flash(f"The new picture of “{item.name}” was saved.", "success")
+    return redirect(url_for("admin.food_image", item_id=item.id))
+
+
+@bp.post("/food/<int:item_id>/image/discard")
+@admin_required
+def food_image_discard(item_id):
+    item = _get_item_or_404(item_id)
+    if _pending_for(item.id):
+        _drop_pending()
+    flash("The new picture was discarded. The item is unchanged.", "info")
+    return redirect(url_for("admin.food_image", item_id=item.id))
 
 
 # --- A3 Orders -----------------------------------------------------------------------------

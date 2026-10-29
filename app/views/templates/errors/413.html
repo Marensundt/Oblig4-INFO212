@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}File too large — Ekte Mat Online{% endblock %}
+{% block content %}
+  <h1>File too large</h1>
+  <p>Pictures can be at most 2 MB. Make the picture smaller and try again.</p>
+  <p><a href="{{ url_for('admin.food_list') }}">← Food items</a></p>
+{% endblock %}

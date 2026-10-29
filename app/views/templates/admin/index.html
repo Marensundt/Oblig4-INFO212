@@ -3,7 +3,7 @@
 {% block content %}
   <h1>Admin panel</h1>
   <ul class="admin-menu">
-    <li><a href="{{ url_for('admin.food_list') }}">Food items</a> — add, edit, publish and remove food (A1)</li>
+    <li><a href="{{ url_for('admin.food_list') }}">Food items</a> — add, edit, publish and remove food (A1) and their pictures (A2)</li>
     <li><a href="{{ url_for('admin.order_list') }}">Orders</a> — filter, approve and follow up orders and payment (A3)
       {% if orders_waiting %}<br><a href="{{ url_for('admin.order_list', status='submitted') }}"><strong>{{ orders_waiting }} new order{{ "" if orders_waiting == 1 else "s" }} waiting for approval</strong></a>{% endif %}
     </li>
@@ -11,5 +11,4 @@
       {% if questions_unanswered %}<br><a href="{{ url_for('admin.question_list') }}"><strong>{{ questions_unanswered }} unanswered question{{ "" if questions_unanswered == 1 else "s" }}</strong></a>{% endif %}
     </li>
   </ul>
-  <p>Images (A2) will be managed here.</p>
 {% endblock %}

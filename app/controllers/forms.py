@@ -1,5 +1,6 @@
 """WTForms form classes (server-side validation + CSRF token)."""
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired
 from wtforms import (
     BooleanField,
     DateField,
@@ -12,6 +13,7 @@ from wtforms import (
     HiddenField,
     IntegerField,
     PasswordField,
+    RadioField,
     SelectMultipleField,
     StringField,
     SubmitField,
@@ -23,6 +25,7 @@ from wtforms.widgets import CheckboxInput, ListWidget
 
 from app.models.accounts import MIN_PASSWORD_LENGTH
 from app.models.enums import Allergen, DietaryLabel, OrderStatus, PaymentStatus
+from app.models.images import MAX_INSTRUCTION_LENGTH
 from app.models.ordering import MAX_GUEST_GROUPS
 from app.models.questions import MAX_TEXT_LENGTH
 
@@ -166,3 +169,24 @@ class AnswerForm(FlaskForm):
                          render_kw={"maxlength": MAX_TEXT_LENGTH})
     from_order = HiddenField()
     submit = SubmitField("Send answer")
+
+
+class ImageUploadForm(FlaskForm):
+    """A2 upload. File type and content are checked in app/models/images.py."""
+
+    picture = FileField("Picture file (JPG, PNG, WebP or SVG, max 2 MB)",
+                        validators=[FileRequired("Choose a file to upload.")],
+                        render_kw={"accept": ".jpg,.jpeg,.png,.webp,.svg"})
+    submit = SubmitField("Upload and preview")
+
+
+class ImageInstructionForm(FlaskForm):
+    """A2 instruction for the image service: create a new picture or modify the current SVG."""
+
+    instruction = TextAreaField("Instruction", validators=[DataRequired("Write an instruction first.")],
+                                render_kw={"maxlength": MAX_INSTRUCTION_LENGTH,
+                                           "placeholder": "e.g. Fish soup in a white bowl with dill on top"})
+    mode = RadioField("What should happen?", default="new",
+                      choices=[SelectChoice("new", "Create a new picture"),
+                               SelectChoice("modify", "Modify the current picture")])
+    submit = SubmitField("Create and preview")

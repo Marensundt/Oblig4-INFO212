@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% from "_partials/forms.html" import field %}
+{% block title %}Picture of {{ item.name }} — Admin — Ekte Mat Online{% endblock %}
+{% block content %}
+  <p><a href="{{ url_for('admin.food_list') }}">← Food items</a></p>
+  <h1>Picture of “{{ item.name }}”</h1>
+
+  <figure class="picture-current">
+    {% if item.image_filename %}
+      <img src="{{ url_for('shop.upload', filename=item.image_filename) }}" alt="Current picture of {{ item.name }}" width="400" height="300">
+      <figcaption>Current picture (shown on the menu)</figcaption>
+    {% else %}
+      <img src="{{ url_for('static', filename='img/placeholder.svg') }}" alt="No picture yet" width="400" height="300">
+      <figcaption>No picture yet — the menu shows a placeholder.</figcaption>
+    {% endif %}
+  </figure>
+
+  <p class="lead">A new picture is shown as a preview first. It only replaces the current picture when you save it.</p>
+
+  <div class="picture-forms">
+    <section aria-labelledby="upload-heading">
+      <h2 id="upload-heading">Upload a picture</h2>
+      <form method="post" action="{{ url_for('admin.food_image_upload', item_id=item.id) }}" enctype="multipart/form-data" class="form" novalidate>
+        {{ upload_form.hidden_tag() }}
+        {{ field(upload_form.picture) }}
+        {{ upload_form.submit(class="button") }}
+      </form>
+    </section>
+
+    <section aria-labelledby="generate-heading">
+      <h2 id="generate-heading">Create from an instruction</h2>
+      <p class="muted">Image service: {{ service_name }}.
+        {% if service_name == "offline placeholder" %}Set ANTHROPIC_API_KEY in .env to let Claude draw an SVG picture.{% endif %}</p>
+      <form method="post" action="{{ url_for('admin.food_image_generate', item_id=item.id) }}" class="form" novalidate>
+        {{ instruction_form.hidden_tag() }}
+        {{ field(instruction_form.instruction) }}
+        <fieldset class="field">
+          <legend>{{ instruction_form.mode.label.text }}</legend>
+          {% for option in instruction_form.mode %}
+            <div class="checkbox-single">
+              {% if option.data == "modify" and not can_modify %}
+                {{ option(disabled=True) }} {{ option.label }} <span class="muted">(only for SVG pictures)</span>
+              {% else %}
+                {{ option() }} {{ option.label }}
+              {% endif %}
+            </div>
+          {% endfor %}
+        </fieldset>
+        {{ instruction_form.submit(class="button") }}
+      </form>
+    </section>
+  </div>
+{% endblock %}
