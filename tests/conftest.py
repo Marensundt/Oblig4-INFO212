@@ -11,8 +11,9 @@ from tests.factories import PASSWORD
 
 @pytest.fixture
 def app(tmp_path):
-    """App with test settings and a temporary database path; never touches instance/."""
-    return create_app(TestConfig, overrides={"DATABASE": str(tmp_path / "test.sqlite")})
+    """App with test settings, a temporary database and upload folder; never touches instance/."""
+    return create_app(TestConfig, overrides={"DATABASE": str(tmp_path / "test.sqlite"),
+                                             "UPLOAD_FOLDER": str(tmp_path / "uploads")})
 
 
 @pytest.fixture
