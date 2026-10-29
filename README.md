@@ -24,7 +24,7 @@ flask --app run reset-db --yes     # create instance/ektemat.sqlite and add synt
 ```
 Separate steps: `flask --app run init-db` (empty tables; asks before deleting data) and `flask --app run seed-db` (adds sample data once; running it again changes nothing).
 
-The seed creates 6 event categories, 12 food items, 6 orders (one in each order status) with guest groups, 3 questions, and these **demo accounts**:
+The seed creates 6 event categories, 12 food items with pictures, 6 orders (one in each order status) with guest groups, 3 questions, and these **demo accounts**:
 
 | Role | E-mail | Password |
 |---|---|---|
@@ -35,6 +35,8 @@ The seed creates 6 event categories, 12 food items, 6 orders (one in each order 
 > The demo password is for **local testing with synthetic data only**. Never use it as a real or production password.
 
 The database file is not under version control; delete it or run `reset-db` at any time to start again.
+
+The food pictures are original illustrations made for this project (sources and licence: `app/models/seed_pictures/README.md`). `reset-db` copies them into `instance/uploads/`; an admin can replace them on each item's Picture page.
 
 ## Run
 ```bash

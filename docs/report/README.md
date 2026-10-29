@@ -35,6 +35,8 @@ Start from a fresh database (`flask --app run reset-db --yes`, then `flask --app
 | — | Admin start page | Counts of orders waiting for approval and unanswered questions. | `/admin/` | admin |
 | — | Access control | Admin pages only for the admin account; customers see "Access denied", visitors are sent to log in. | `/admin/` as a customer | customer |
 
+**Food pictures:** the 12 demo items have original SVG illustrations made for this project (no third-party material); sources and licence in `app/models/seed_pictures/README.md`. Mention this in part 2 next to the menu screenshot. Retake the screenshots after `reset-db`, so the menu shows the pictures.
+
 ## Part 3 — Software design (diagrams and how each was used)
 
 Diagrams: `docs/design/img/*.png` (sources `docs/design/*.puml`). Use of each, to adapt in the group's own words:
