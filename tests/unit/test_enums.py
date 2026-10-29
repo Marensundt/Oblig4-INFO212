@@ -47,3 +47,13 @@ def test_can_change_to_accepts_string_value():
 def test_unknown_status_is_rejected():
     with pytest.raises(ValueError):
         S.SUBMITTED.can_change_to("confimed")  # misspelling found in the order export (DV-07)
+
+
+def test_next_statuses_follow_main_path_order():
+    # Choices for the admin status form (A3); same rule as can_change_to
+    assert S.SUBMITTED.next_statuses == [S.APPROVED, S.REJECTED, S.CANCELLED]
+    assert S.APPROVED.next_statuses == [S.IN_PREPARATION, S.CANCELLED]
+    assert S.IN_PREPARATION.next_statuses == [S.DELIVERED, S.CANCELLED]
+    for status in S:
+        assert all(status.can_change_to(new) for new in status.next_statuses)
+        assert status.is_final == (status.next_statuses == [])
