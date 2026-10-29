@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_partials/forms.html" import field %}
+{% from "_partials/order_details.html" import order_facts, order_lines, guest_groups %}
+{% block title %}Order {{ order.order_number }} — Admin — Ekte Mat Online{% endblock %}
+{% block content %}
+  <p><a href="{{ url_for('admin.order_list') }}">← Orders</a></p>
+  <h1>Order {{ order.order_number }}</h1>
+
+  <h2>Customer</h2>
+  {% if customer %}
+    <p>{{ customer.name }} · <a href="mailto:{{ customer.email }}">{{ customer.email }}</a>{% if customer.phone %} · {{ customer.phone }}{% endif %}</p>
+  {% else %}
+    <p>Unknown customer.</p>
+  {% endif %}
+
+  {{ order_facts(order) }}
+
+  <div class="manage-forms">
+    <form method="post" action="{{ url_for('admin.order_status', order_id=order.id) }}" class="form">
+      {{ status_form.hidden_tag() }}
+      {% if order.status.next_statuses %}
+        {{ field(status_form.status) }}
+        {{ status_form.submit(class="button") }}
+      {% else %}
+        <p><strong>Order status:</strong> {{ order.status.label | capitalize }} is final and cannot be changed.</p>
+      {% endif %}
+    </form>
+    <form method="post" action="{{ url_for('admin.order_payment', order_id=order.id) }}" class="form">
+      {{ payment_form.hidden_tag() }}
+      {{ field(payment_form.payment_status) }}
+      {{ payment_form.submit(class="button") }}
+    </form>
+  </div>
+
+  {{ guest_groups(order, highlight=True) }}
+  {{ order_lines(order) }}
+{% endblock %}

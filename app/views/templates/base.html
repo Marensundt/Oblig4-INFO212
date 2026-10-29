@@ -16,6 +16,7 @@
         {% if g.user.is_admin %}
           <a href="{{ url_for('admin.index') }}">Admin</a>
         {% else %}
+          <a href="{{ url_for('account.orders') }}">My orders</a>
           <a href="{{ url_for('account.index') }}">My account</a>
         {% endif %}
         <form class="inline-form" method="post" action="{{ url_for('account.logout') }}">

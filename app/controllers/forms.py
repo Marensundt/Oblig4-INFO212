@@ -7,6 +7,7 @@ from wtforms import (
     Form,
     FormField,
     SelectChoice,
+    SelectField,
     EmailField,
     HiddenField,
     IntegerField,
@@ -21,7 +22,7 @@ from wtforms.validators import DataRequired, EqualTo, InputRequired, Length, Num
 from wtforms.widgets import CheckboxInput, ListWidget
 
 from app.models.accounts import MIN_PASSWORD_LENGTH
-from app.models.enums import Allergen, DietaryLabel
+from app.models.enums import Allergen, DietaryLabel, OrderStatus, PaymentStatus
 from app.models.ordering import MAX_GUEST_GROUPS
 
 # Simple format check; full e-mail validation would need an extra package.
@@ -118,3 +119,32 @@ class CheckoutForm(FlaskForm):
     guest_groups = FieldList(FormField(GuestGroupForm), min_entries=1, max_entries=MAX_GUEST_GROUPS)
     add_group = SubmitField("Add another guest group")  # works without JavaScript
     submit = SubmitField("Send order")
+
+
+class OrderFilterForm(FlaskForm):
+    """A3 list filter, sent as GET query parameters (no CSRF token needed: it changes nothing)."""
+
+    class Meta:
+        csrf = False
+
+    status = SelectField("Status", default="", choices=[SelectChoice("", "All statuses")]
+                         + [SelectChoice(s.value, s.label.capitalize()) for s in OrderStatus])
+    date_from = DateField("Event date from", validators=[Optional()])
+    date_to = DateField("Event date to", validators=[Optional()])
+
+    def validate_date_to(self, field):
+        if field.data and self.date_from.data and field.data < self.date_from.data:
+            raise ValidationError("“To” must be on or after “from”.")
+
+
+class OrderStatusForm(FlaskForm):
+    """Choices are the allowed next statuses, set by the controller from OrderStatus.next_statuses."""
+
+    status = SelectField("New order status", validators=[DataRequired()])
+    submit = SubmitField("Change status")
+
+
+class PaymentStatusForm(FlaskForm):
+    payment_status = SelectField("Payment status",
+                                 choices=[SelectChoice(p.value, p.label.capitalize()) for p in PaymentStatus])
+    submit = SubmitField("Save payment status")

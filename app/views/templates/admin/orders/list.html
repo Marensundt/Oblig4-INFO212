@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "_partials/forms.html" import field %}
+{% block title %}Orders — Admin — Ekte Mat Online{% endblock %}
+{% block content %}
+  <p><a href="{{ url_for('admin.index') }}">← Admin panel</a></p>
+  <h1>Orders</h1>
+
+  <form method="get" action="{{ url_for('admin.order_list') }}" class="filter-form" novalidate>
+    <div class="field-row">
+      {{ field(form.status) }}
+      {{ field(form.date_from) }}
+      {{ field(form.date_to) }}
+    </div>
+    <button type="submit" class="button">Filter</button>
+    {% if filtered %}<a href="{{ url_for('admin.order_list') }}">Show all orders</a>{% endif %}
+  </form>
+
+  {% if orders %}
+  <p class="lead">{{ orders | length }} order{{ "" if orders | length == 1 else "s" }}, sorted by event date.</p>
+  <div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th scope="col">Order</th>
+        <th scope="col">Event date</th>
+        <th scope="col">Customer</th>
+        <th scope="col">Guests</th>
+        <th scope="col">Total (NOK)</th>
+        <th scope="col">Allergies</th>
+        <th scope="col">Order status</th>
+        <th scope="col">Payment status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      {% set customer = customers.get(order.customer_id) %}
+      <tr>
+        <td><a href="{{ url_for('admin.order_detail', order_id=order.id) }}">{{ order.order_number }}</a></td>
+        <td>{{ order.event_date.strftime("%d.%m.%Y") }}</td>
+        <td>{{ customer.name if customer else "—" }}</td>
+        <td class="num">{{ order.guest_count }}</td>
+        <td class="num">{{ order.total_nok }}</td>
+        <td>{% if order.guest_groups | selectattr("allergies") | list %}<span class="badge badge-allergen">⚠ Yes</span>{% else %}—{% endif %}</td>
+        <td><span class="badge status-{{ order.status.value }}">{{ order.status.label | capitalize }}</span></td>
+        <td><span class="badge payment-{{ order.payment_status.value }}">{{ order.payment_status.label | capitalize }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+    <p>No orders match the filter.</p>
+  {% endif %}
+{% endblock %}
