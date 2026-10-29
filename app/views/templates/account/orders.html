@@ -13,6 +13,7 @@
         <th scope="col">Estimated total (NOK)</th>
         <th scope="col">Order status</th>
         <th scope="col">Payment status</th>
+        <th scope="col">Questions</th>
       </tr>
     </thead>
     <tbody>
@@ -24,6 +25,7 @@
         <td class="num">{{ order.total_nok }}</td>
         <td><span class="badge status-{{ order.status.value }}">{{ order.status.label | capitalize }}</span></td>
         <td><span class="badge payment-{{ order.payment_status.value }}">{{ order.payment_status.label | capitalize }}</span></td>
+        <td>{% if waiting[order.id] %}{{ waiting[order.id] }} waiting for an answer{% else %}—{% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>

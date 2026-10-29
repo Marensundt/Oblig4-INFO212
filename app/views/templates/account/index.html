@@ -4,5 +4,5 @@
   <h1>My account</h1>
   <p>Logged in as <strong>{{ g.user.name }}</strong> ({{ g.user.email }}).</p>
   <p>To order, add food from the <a href="{{ url_for('shop.menu') }}">menu</a> to your cart and choose “Continue to order”.</p>
-  <p>See the status of your orders under <a href="{{ url_for('account.orders') }}">My orders</a>. Questions about an order (C5) will be available there.</p>
+  <p>See the status of your orders under <a href="{{ url_for('account.orders') }}">My orders</a>. Open an order there to ask Ekte Mat a question about it.</p>
 {% endblock %}

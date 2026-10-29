@@ -24,6 +24,7 @@ from wtforms.widgets import CheckboxInput, ListWidget
 from app.models.accounts import MIN_PASSWORD_LENGTH
 from app.models.enums import Allergen, DietaryLabel, OrderStatus, PaymentStatus
 from app.models.ordering import MAX_GUEST_GROUPS
+from app.models.questions import MAX_TEXT_LENGTH
 
 # Simple format check; full e-mail validation would need an extra package.
 EMAIL_FORMAT = Regexp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", message="Enter a valid e-mail address.")
@@ -148,3 +149,20 @@ class PaymentStatusForm(FlaskForm):
     payment_status = SelectField("Payment status",
                                  choices=[SelectChoice(p.value, p.label.capitalize()) for p in PaymentStatus])
     submit = SubmitField("Save payment status")
+
+
+class QuestionForm(FlaskForm):
+    """C5. Length and empty-text rules live in app/models/questions.py."""
+
+    text = TextAreaField("Your question", validators=[DataRequired("Write your question first.")],
+                         render_kw={"maxlength": MAX_TEXT_LENGTH})
+    submit = SubmitField("Send question")
+
+
+class AnswerForm(FlaskForm):
+    """A4. `from_order` sends the admin back to the order page instead of the question list."""
+
+    text = TextAreaField("Answer", validators=[DataRequired("Write your answer first.")],
+                         render_kw={"maxlength": MAX_TEXT_LENGTH})
+    from_order = HiddenField()
+    submit = SubmitField("Send answer")

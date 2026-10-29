@@ -1,17 +1,18 @@
-"""Account blueprint: register/login/logout and checkout (C3), my orders (C4), later C5 questions."""
+"""Account blueprint: register/login/logout and checkout (C3), my orders (C4), questions (C5)."""
 from urllib.parse import urlsplit
 
 from flask import Blueprint, abort, current_app, flash, g, redirect, render_template, request, session, url_for
 
 from app.controllers.cart_session import CART_KEY, clear_cart, load_cart
 from app.controllers.decorators import login_required
-from app.controllers.forms import CheckoutForm, LoginForm, LogoutForm, RegisterForm
+from app.controllers.forms import CheckoutForm, LoginForm, LogoutForm, QuestionForm, RegisterForm
 from app.models.accounts import authenticate, register_customer
 from app.models.cart import estimated_total_nok
 from app.models.entities import GuestGroup
 from app.models.enums import Allergen
-from app.models.errors import DuplicateEmail, InvalidOrder
+from app.models.errors import DuplicateEmail, InvalidOrder, InvalidQuestion
 from app.models.ordering import check_cart, place_order
+from app.models.questions import ask_question as ask_question_on_order
 
 bp = Blueprint("account", __name__, url_prefix="/account")
 
@@ -166,10 +167,40 @@ def confirmation(order_id):
 @login_required
 def orders():
     """US-17 AC1, AC3: own orders with current status and payment status."""
-    return render_template("account/orders.html", orders=current_app.repos.orders.list_for_customer(g.user.id))
+    orders = current_app.repos.orders.list_for_customer(g.user.id)
+    waiting = {
+        order.id: sum(not q.is_answered for q in current_app.repos.questions.list_for_order(order.id))
+        for order in orders
+    }
+    return render_template("account/orders.html", orders=orders, waiting=waiting)
+
+
+def _render_order_detail(order, form):
+    questions = current_app.repos.questions.list_for_order(order.id)
+    return render_template("account/order_detail.html", order=order, questions=questions, form=form)
 
 
 @bp.get("/orders/<int:order_id>")
 @login_required
 def order_detail(order_id):
-    return render_template("account/order_detail.html", order=_own_order_or_404(order_id))
+    """C4 order page with C5 questions and answers (US-19)."""
+    return _render_order_detail(_own_order_or_404(order_id), QuestionForm())
+
+
+# --- C5 Questions ----------------------------------------------------------------------------
+
+@bp.post("/orders/<int:order_id>/questions")
+@login_required
+def ask_question(order_id):
+    """US-18: ask about one of my orders; others' orders are not found (AC3)."""
+    order = _own_order_or_404(order_id)
+    form = QuestionForm()
+    if form.validate_on_submit():
+        try:
+            ask_question_on_order(current_app.repos, g.user, order.id, form.text.data)
+        except InvalidQuestion as error:
+            form.text.errors.append(str(error))
+        else:
+            flash("Your question has been sent. Ekte Mat will answer here.", "success")
+            return redirect(url_for("account.order_detail", order_id=order.id) + "#questions")
+    return _render_order_detail(order, form)
