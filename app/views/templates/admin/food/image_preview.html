@@ -20,7 +20,7 @@
     </figure>
   </div>
 
-  <div class="actions">
+  <div class="preview-actions">
     <form method="post" action="{{ url_for('admin.food_image_save', item_id=item.id) }}" class="inline-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="button">Save picture</button>
