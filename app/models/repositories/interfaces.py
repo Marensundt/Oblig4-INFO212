@@ -104,6 +104,10 @@ class QuestionRepository(ABC):
         """Store a new question and return it with id."""
 
     @abstractmethod
+    def get(self, question_id):
+        """Return the question or None."""
+
+    @abstractmethod
     def list_for_order(self, order_id):
         """Return the order's questions, oldest first (C5)."""
 

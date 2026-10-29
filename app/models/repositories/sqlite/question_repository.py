@@ -30,6 +30,11 @@ class SqliteQuestionRepository(QuestionRepository):
             row = conn.execute("SELECT * FROM questions WHERE id = ?", (cursor.lastrowid,)).fetchone()
         return _to_question(row)
 
+    def get(self, question_id):
+        with self.db.connect() as conn:
+            row = conn.execute("SELECT * FROM questions WHERE id = ?", (question_id,)).fetchone()
+        return _to_question(row) if row else None
+
     def list_for_order(self, order_id):
         with self.db.connect() as conn:
             rows = conn.execute(
