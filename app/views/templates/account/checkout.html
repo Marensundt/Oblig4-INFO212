@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% from "_partials/forms.html" import field, errors %}
+{% block title %}Order — Ekte Mat Online{% endblock %}
+
+{% macro guest_group(entry, number) %}
+  {# No field for a guest's name: allergies are stored per group (GDPR; US-13 AC3). #}
+  <fieldset class="guest-group" data-guest-group>
+    <legend>Guest group <span data-group-number>{{ number }}</span></legend>
+    <div class="field-row">
+      {{ field(entry.form.label, autocomplete="off") }}
+      {{ field(entry.form.count) }}
+    </div>
+    <fieldset class="field checkbox-group">
+      <legend>{{ entry.form.allergies.label.text }}</legend>
+      {{ entry.form.allergies(class="checkbox-list") }}
+    </fieldset>
+    {{ field(entry.form.dietary_notes) }}
+    <button type="button" class="link-button danger" data-remove-group hidden>Remove this group</button>
+  </fieldset>
+{% endmacro %}
+
+{% block content %}
+  <h1>Send your order</h1>
+
+  <section aria-labelledby="summary-heading">
+    <h2 id="summary-heading">Your cart</h2>
+    <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th scope="col">Food item</th><th scope="col">Portions</th><th scope="col">Line total (NOK)</th></tr>
+      </thead>
+      <tbody>
+        {% for line in lines %}
+        <tr><td>{{ line.item.name }}</td><td class="num">{{ line.quantity }}</td><td class="num">{{ line.line_total_nok }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr><th scope="row" colspan="2">Estimated total</th><td class="num cart-total">{{ total_nok }} NOK</td></tr>
+      </tfoot>
+    </table>
+    </div>
+    <p><a href="{{ url_for('shop.cart') }}">Change the cart</a></p>
+  </section>
+
+  <form method="post" action="{{ url_for('account.checkout') }}" class="form form-wide" novalidate>
+    {{ form.hidden_tag() }}
+    {% if form_errors %}
+      <ul class="field-errors form-errors" role="alert">
+        {% for message in form_errors %}<li>{{ message }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <h2>The event</h2>
+    <div class="field-row">
+      {{ field(form.event_date) }}
+      {{ field(form.guest_count) }}
+    </div>
+    {{ field(form.delivery_address, autocomplete="street-address") }}
+
+    <h2>Guest groups, allergies and diets</h2>
+    <p class="lead">Describe allergies and diets per group of guests, for example “Adults” and “Children”.
+      Do not write guests' names.</p>
+    <div data-guest-groups>
+      {% for entry in form.guest_groups %}{{ guest_group(entry, loop.index) }}{% endfor %}
+    </div>
+    <p>{{ form.add_group(class="button button-secondary", formnovalidate=True, **{"data-add-group": ""}) }}</p>
+
+    <p class="lead">No payment now. Ekte Mat confirms the price and contacts you about payment after
+      approving the order.</p>
+    {{ form.submit(class="button") }}
+  </form>
+  <script src="{{ url_for('static', filename='js/checkout.js') }}" defer></script>
+{% endblock %}

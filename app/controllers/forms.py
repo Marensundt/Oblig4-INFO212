@@ -2,6 +2,10 @@
 from flask_wtf import FlaskForm
 from wtforms import (
     BooleanField,
+    DateField,
+    FieldList,
+    Form,
+    FormField,
     SelectChoice,
     EmailField,
     HiddenField,
@@ -18,6 +22,7 @@ from wtforms.widgets import CheckboxInput, ListWidget
 
 from app.models.accounts import MIN_PASSWORD_LENGTH
 from app.models.enums import Allergen, DietaryLabel
+from app.models.ordering import MAX_GUEST_GROUPS
 
 # Simple format check; full e-mail validation would need an extra package.
 EMAIL_FORMAT = Regexp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", message="Enter a valid e-mail address.")
@@ -86,3 +91,30 @@ class CartQuantityForm(FlaskForm):
 
     item_id = IntegerField(validators=[InputRequired()])
     quantity = IntegerField("Portions", validators=[InputRequired("Enter the number of portions.")])
+
+
+class GuestGroupForm(Form):
+    """One guest group (C3). Deliberately no field for a guest's name (GDPR; US-13 AC3).
+
+    A plain Form, not FlaskForm: the CSRF token belongs to the outer CheckoutForm.
+    """
+
+    label = StringField("Group", validators=[DataRequired("Name the group, e.g. “Adults”."), Length(max=60)])
+    count = IntegerField("Guests in group", validators=[InputRequired("Enter the number of guests."),
+                                                        NumberRange(min=1, message="At least 1 guest.")])
+    allergies = MultiCheckboxField("Allergies", choices=[SelectChoice(a.value, a.label) for a in Allergen])
+    dietary_notes = TextAreaField("Dietary notes", validators=[Optional(), Length(max=300)])
+
+
+class CheckoutForm(FlaskForm):
+    """C3 order form. Order rules (future date, group counts) are checked in app/models/ordering.py."""
+
+    event_date = DateField("Event date", validators=[InputRequired("Choose the date of the event.")])
+    guest_count = IntegerField("Number of guests",
+                               validators=[InputRequired("Enter the number of guests."),
+                                           NumberRange(min=1, message="The number of guests must be at least 1.")])
+    delivery_address = TextAreaField("Delivery address",
+                                     validators=[DataRequired("Enter a delivery address."), Length(max=300)])
+    guest_groups = FieldList(FormField(GuestGroupForm), min_entries=1, max_entries=MAX_GUEST_GROUPS)
+    add_group = SubmitField("Add another guest group")  # works without JavaScript
+    submit = SubmitField("Send order")

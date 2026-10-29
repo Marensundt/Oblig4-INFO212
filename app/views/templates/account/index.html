@@ -3,5 +3,6 @@
 {% block content %}
   <h1>My account</h1>
   <p>Logged in as <strong>{{ g.user.name }}</strong> ({{ g.user.email }}).</p>
-  <p>Ordering (C3), my orders (C4) and questions (C5) will be available here.</p>
+  <p>To order, add food from the <a href="{{ url_for('shop.menu') }}">menu</a> to your cart and choose “Continue to order”.</p>
+  <p>My orders (C4) and questions (C5) will be available here.</p>
 {% endblock %}
