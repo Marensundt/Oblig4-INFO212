@@ -1,5 +1,5 @@
 @startuml mvc-architecture
-' Ekte Mat Online — MVC architecture sketch (OB4 §3; 01-plan §3, §6)
+' Ekte Mat Online — MVC architecture sketch (OB4 §3; 01-plan §3, §6). Updated 2026-10-29 to match the code (phase 10).
 !pragma layout smetana
 skinparam componentStyle rectangle
 
@@ -19,7 +19,9 @@ package "app/controllers (CONTROLLER)" {
 
 package "app/models (MODEL)" {
   [Domain classes\nUser, FoodItem, EventCategory, Order,\nOrderLine, GuestGroup, Question, Cart, CartLine, enums] as Domain
-  [ImageService\n(placeholder / AI)] as Img
+  [Domain rules\naccounts, catalogue, cart, ordering,\nquestions, images] as Rules
+  [ImageService\n(offline placeholder / Claude SVG)] as Img
+  [ImageStorage\n(picture files)] as Files
   package "repositories" {
     [Repository interfaces] as IRepo
     [sqlite/ implementations] as SqliteRepo
@@ -28,6 +30,7 @@ package "app/models (MODEL)" {
 }
 
 database "instance/ektemat.sqlite" as DB
+folder "instance/uploads" as Uploads
 database "Neo4j\n(Oblig 5)" as Neo #line.dashed
 cloud "AI image service\n(key from .env)" as AI #line.dashed
 
@@ -37,13 +40,18 @@ Browser --> CAdmin : HTTP
 CShop --> VShop : render
 CAccount --> VAccount : render
 CAdmin --> VAdmin : render
-CShop --> Domain
-CAccount --> Domain
-CAdmin --> Domain
+CShop --> Rules
+CAccount --> Rules
+CAdmin --> Rules
+Rules --> Domain
+Rules --> IRepo
 CShop --> IRepo
 CAccount --> IRepo
 CAdmin --> IRepo
 CAdmin --> Img
+CAdmin --> Files
+CShop --> Files : serve pictures
+Files --> Uploads
 Img ..> AI
 IRepo <|.. SqliteRepo
 IRepo <|.. NeoRepo
