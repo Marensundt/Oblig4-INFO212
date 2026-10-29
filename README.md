@@ -64,12 +64,15 @@ Customer **questions** are at `/admin/questions` (unanswered first, each linked 
 ```bash
 pytest
 ```
+`tests/test_walkthrough.py` runs the whole demo (menu → cart → order → my orders → question → admin food item, picture, order status, answer) end to end on the seed data.
+
+After pulling new changes, run `pip install -r requirements.txt` again in case dependencies changed.
 Tests also run automatically on GitHub (Actions) for every pull request and push to `main`, on Python 3.11 and 3.13.
 
 ## Project structure
 ```
 app/
-  models/            model layer: domain classes, enums, seed data
+  models/            model layer: domain classes, enums, domain rules, pictures, seed data
     repositories/    interfaces + sqlite/ implementations (the only code that touches the database)
   views/templates/   view layer: Jinja2 templates
   controllers/       controller layer: blueprints shop, account, admin
@@ -78,4 +81,5 @@ tests/               pytest tests
 docs/plans/          agreed plans (one per larger feature)
 docs/backlog/        user stories, acceptance criteria, NFRs, traceability
 docs/design/         UML diagrams (PlantUML + PNG)
+docs/report/         material for the report: feature list, screenshot checklist, submission checklist
 ```
