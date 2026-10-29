@@ -85,6 +85,7 @@ main {
 }
 
 .field input:not([type="checkbox"]),
+.field select,
 .field textarea {
   width: 100%;
   padding: 0.5rem;
@@ -260,3 +261,18 @@ main {
 .order-facts dt { min-width: 10rem; color: var(--muted); }
 .order-facts dd { margin: 0; font-weight: 600; }
 .address { white-space: pre-line; }
+
+/* C4 / A3 orders */
+.status-submitted { border-color: #8a6d00; color: #8a6d00; }
+.status-approved, .status-in_preparation { border-color: var(--accent); color: var(--accent); }
+.status-delivered { background: var(--accent); border-color: var(--accent); color: #fff; }
+.status-rejected, .status-cancelled { border-color: var(--muted); color: var(--muted); }
+.payment-not_paid { color: var(--muted); }
+.payment-paid { border-color: var(--accent); color: var(--accent); }
+.filter-form { margin-bottom: 1.5rem; }
+.filter-form .field-row { align-items: flex-end; }
+.manage-forms { display: flex; flex-wrap: wrap; gap: 2rem; margin: 1rem 0 2rem; }
+.manage-forms .form { flex: 1 1 16rem; }
+.allergy-alert { border: 2px solid var(--error); border-radius: 4px; padding: 0.5rem 1rem; margin-bottom: 1rem; }
+.allergy-alert ul { margin: 0.25rem 0 0; }
+.row-allergy td { background: #fbeeee; }

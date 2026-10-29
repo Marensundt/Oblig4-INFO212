@@ -48,9 +48,13 @@ Each card has an **Add to cart** form. The **cart** (`/cart`) lists the items wi
 
 From the cart, **Continue to order** (`/account/checkout`) asks you to log in or register and then shows the order form: event date, number of guests, delivery address and one or more guest groups with allergies and dietary notes (no guest names). There is no payment step; the order is saved as *submitted* / *not paid* and you see a confirmation with the order number.
 
+Customers see their own orders with order status and payment status under **My orders** (`/account/orders`), with a page per order.
+
 Log in at http://127.0.0.1:5000/account/login with a demo account (see above), or register a new customer account at `/account/register`. The admin panel (`/admin/`) is only available to the admin account; customers get "Access denied".
 
 As admin you can manage the food items at `/admin/food`: add, edit, publish/unpublish and delete (items that are part of an order can only be unpublished).
+
+As admin you manage orders at `/admin/orders`: filter by status and event date, open an order to see its lines and guest groups (allergies highlighted), change the order status (only the allowed next steps: submitted → approved → in preparation → delivered, or rejected/cancelled) and set the payment status by hand.
 
 ## Test
 ```bash

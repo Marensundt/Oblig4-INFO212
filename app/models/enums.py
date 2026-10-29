@@ -28,6 +28,11 @@ class OrderStatus(StrEnum):
     def can_change_to(self, new_status):
         return OrderStatus(new_status) in ALLOWED_TRANSITIONS[self]
 
+    @property
+    def next_statuses(self):
+        """Statuses this order may change to, in the order of the main path (for the admin form)."""
+        return [status for status in OrderStatus if status in ALLOWED_TRANSITIONS[self]]
+
 
 # OFFICIAL (A3): submitted -> approved -> in_preparation -> delivered, or rejected/cancelled.
 # ASSUMPTION (OPEN-9, docs/plans/03): rejected only from submitted; cancelled from any
