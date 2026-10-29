@@ -7,6 +7,9 @@
     <li><a href="{{ url_for('admin.order_list') }}">Orders</a> — filter, approve and follow up orders and payment (A3)
       {% if orders_waiting %}<br><a href="{{ url_for('admin.order_list', status='submitted') }}"><strong>{{ orders_waiting }} new order{{ "" if orders_waiting == 1 else "s" }} waiting for approval</strong></a>{% endif %}
     </li>
+    <li><a href="{{ url_for('admin.question_list') }}">Questions</a> — read and answer customers' questions (A4)
+      {% if questions_unanswered %}<br><a href="{{ url_for('admin.question_list') }}"><strong>{{ questions_unanswered }} unanswered question{{ "" if questions_unanswered == 1 else "s" }}</strong></a>{% endif %}
+    </li>
   </ul>
-  <p>Images (A2) and questions (A4) will be managed here.</p>
+  <p>Images (A2) will be managed here.</p>
 {% endblock %}

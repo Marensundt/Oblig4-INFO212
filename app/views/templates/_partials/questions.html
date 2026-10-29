@@ -1,0 +1,33 @@
+{# Questions on one order with answers (C5 customer view, A4 admin view). #}
+{% macro answer_form(question, from_order=False) %}
+  <form method="post" action="{{ url_for('admin.question_answer', question_id=question.id) }}" class="form answer-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if from_order %}<input type="hidden" name="from_order" value="1">{% endif %}
+    <div class="field">
+      <label for="answer-{{ question.id }}">Answer</label>
+      <textarea id="answer-{{ question.id }}" name="text" maxlength="1000" required></textarea>
+    </div>
+    <button type="submit" class="button">Send answer</button>
+  </form>
+{% endmacro %}
+
+{% macro question_thread(questions, admin=False) %}
+  {% for question in questions %}
+    <article class="question{% if not question.is_answered %} question-waiting{% endif %}">
+      <p class="question-meta">Question asked {{ question.asked_at.strftime("%d.%m.%Y %H:%M") }}</p>
+      <p class="question-text">{{ question.text }}</p>
+      {% if question.is_answered %}
+        <div class="answer">
+          <p class="question-meta">Answer from Ekte Mat, {{ question.answered_at.strftime("%d.%m.%Y %H:%M") }}</p>
+          <p class="question-text">{{ question.answer_text }}</p>
+        </div>
+      {% elif admin %}
+        {{ answer_form(question, from_order=True) }}
+      {% else %}
+        <p class="badge waiting-badge">Waiting for an answer</p>
+      {% endif %}
+    </article>
+  {% else %}
+    <p>No questions yet.</p>
+  {% endfor %}
+{% endmacro %}

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "_partials/forms.html" import field %}
 {% from "_partials/order_details.html" import order_facts, order_lines, guest_groups %}
+{% from "_partials/questions.html" import question_thread %}
 {% block title %}Order {{ order.order_number }} — Admin — Ekte Mat Online{% endblock %}
 {% block content %}
   <p><a href="{{ url_for('admin.order_list') }}">← Orders</a></p>
@@ -34,4 +35,9 @@
 
   {{ guest_groups(order, highlight=True) }}
   {{ order_lines(order) }}
+
+  <section id="questions" aria-labelledby="questions-heading">
+    <h2 id="questions-heading">Questions from the customer</h2>
+    {{ question_thread(questions, admin=True) }}
+  </section>
 {% endblock %}

@@ -57,3 +57,11 @@ class InvalidOrder(DomainError):
     def __init__(self, errors):
         super().__init__("; ".join(errors.values()))
         self.errors = errors
+
+
+class InvalidQuestion(DomainError):
+    """Question or answer text breaks a rule (C5, A4). The message is shown to the user."""
+
+
+class AlreadyAnswered(DomainError):
+    """A question is answered once (ASSUMPTION, docs/plans/08)."""

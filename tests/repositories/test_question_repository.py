@@ -33,3 +33,9 @@ def test_list_all_unanswered_first(repos, order, customer, admin):
     second = repos.questions.add(Question(order.id, customer.id, "Second"))
     repos.questions.answer(first.id, "Answer", admin.id)
     assert [q.id for q in repos.questions.list_all()] == [second.id, first.id]
+
+
+def test_get(repos, order, customer):
+    question = repos.questions.add(Question(order.id, customer.id, "Can we pick up ourselves?"))
+    assert repos.questions.get(question.id) == question
+    assert repos.questions.get(999) is None

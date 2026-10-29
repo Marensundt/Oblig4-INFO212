@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_partials/questions.html" import answer_form %}
+{% block title %}Questions — Admin — Ekte Mat Online{% endblock %}
+{% block content %}
+  <p><a href="{{ url_for('admin.index') }}">← Admin panel</a></p>
+  <h1>Questions</h1>
+  {% if questions %}
+    <p class="lead">Unanswered questions first, oldest first.</p>
+    {% for question in questions %}
+      {% set order = orders.get(question.order_id) %}
+      {% set customer = customers.get(question.author_id) %}
+      <article class="question{% if not question.is_answered %} question-waiting{% endif %}">
+        <p class="question-meta">
+          {% if order %}<a href="{{ url_for('admin.order_detail', order_id=order.id) }}">Order {{ order.order_number }}</a>{% endif %}
+          · {{ customer.name if customer else "Unknown customer" }}
+          · asked {{ question.asked_at.strftime("%d.%m.%Y %H:%M") }}
+          {% if not question.is_answered %}<span class="badge waiting-badge">Unanswered</span>{% endif %}
+        </p>
+        <p class="question-text">{{ question.text }}</p>
+        {% if question.is_answered %}
+          <div class="answer">
+            <p class="question-meta">Answered {{ question.answered_at.strftime("%d.%m.%Y %H:%M") }}</p>
+            <p class="question-text">{{ question.answer_text }}</p>
+          </div>
+        {% else %}
+          {{ answer_form(question) }}
+        {% endif %}
+      </article>
+    {% endfor %}
+  {% else %}
+    <p>No questions yet.</p>
+  {% endif %}
+{% endblock %}
