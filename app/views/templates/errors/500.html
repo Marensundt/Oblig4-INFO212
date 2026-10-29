@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Something went wrong — Ekte Mat Online{% endblock %}
+{% block content %}
+  <h1>Something went wrong</h1>
+  <p>Sorry, the page could not be shown because of an error on our side.
+    Please try again, or <a href="{{ url_for('shop.menu') }}">go back to the menu</a>.</p>
+{% endblock %}
