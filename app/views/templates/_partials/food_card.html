@@ -1,5 +1,6 @@
-{# One food item on the menu (C1): picture, price, minimum order and allergens (US-06 AC2). #}
-{% macro food_card(item) %}
+{# One food item on the menu (C1): picture, price, minimum order and allergens (US-06 AC2),
+   with an "add to cart" form (C2, US-08). id_prefix keeps field ids unique when an item is in several categories. #}
+{% macro food_card(item, id_prefix="") %}
   <article class="food-card">
     {% if item.image_filename %}
       <img src="{{ url_for('shop.upload', filename=item.image_filename) }}" alt="{{ item.name }}"
@@ -27,6 +28,14 @@
           {% for label in item.dietary_labels | sort %}<span class="badge badge-diet">{{ label.label }}</span>{% endfor %}
         </p>
       {% endif %}
+      <form class="add-to-cart" method="post" action="{{ url_for('shop.cart_add') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="item_id" value="{{ item.id }}">
+        <label for="{{ id_prefix }}qty-{{ item.id }}">Portions</label>
+        <input id="{{ id_prefix }}qty-{{ item.id }}" type="number" name="quantity" inputmode="numeric"
+               min="{{ item.min_order_qty }}" step="1" value="{{ item.min_order_qty }}" required>
+        <button type="submit" class="button">Add to cart</button>
+      </form>
     </div>
   </article>
 {% endmacro %}

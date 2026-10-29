@@ -79,3 +79,10 @@ class FoodItemForm(FlaskForm):
         # DV-10 (ASSUMPTION): every item needs a category so it appears in the menu by event (C1)
         if not field.data:
             raise ValidationError("Choose at least one event category.")
+
+
+class CartQuantityForm(FlaskForm):
+    """Add to cart (menu card) or change a cart line (C2). Quantity rules live in app/models/cart.py."""
+
+    item_id = IntegerField(validators=[InputRequired()])
+    quantity = IntegerField("Portions", validators=[InputRequired("Enter the number of portions.")])

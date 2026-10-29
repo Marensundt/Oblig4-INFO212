@@ -30,3 +30,19 @@ class ItemInUse(DomainError):
 
 class StorageNotInitialised(DomainError):
     """The database has not been created yet (run `flask --app run reset-db --yes`)."""
+
+
+class InvalidQuantity(DomainError):
+    """A cart quantity is outside the allowed range (OB4 C2). The message is shown to the visitor."""
+
+
+class BelowMinimumOrder(InvalidQuantity):
+    """Quantity below the food item's minimum order (OB4 C2; US-08 AC2, US-09 AC2)."""
+
+    def __init__(self, item):
+        super().__init__(f"The minimum order for “{item.name}” is {item.min_order_qty} portions.")
+        self.item = item
+
+
+class ItemNotAvailable(DomainError):
+    """The food item does not exist or is not published, so it cannot be in the cart."""

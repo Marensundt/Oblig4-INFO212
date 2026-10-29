@@ -16,7 +16,7 @@
       <section class="menu-category" aria-labelledby="{{ category.slug }}">
         <h2 id="{{ category.slug }}">{{ category.name }}</h2>
         <div class="card-grid">
-          {% for item in items %}{{ food_card(item) }}{% endfor %}
+          {% for item in items %}{{ food_card(item, category.slug ~ '-') }}{% endfor %}
         </div>
       </section>
     {% endfor %}

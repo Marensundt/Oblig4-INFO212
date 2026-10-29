@@ -236,3 +236,16 @@ main {
 .food-allergens, .food-labels { margin: 0.25rem 0 0; }
 .badge-allergen { border-color: var(--error); color: var(--error); margin: 0 0.15rem 0.15rem 0; }
 .badge-diet { border-color: var(--accent); color: var(--accent); margin: 0 0.15rem 0.15rem 0; }
+
+/* C2 cart */
+.add-to-cart { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.75rem; }
+.add-to-cart input, .cart-quantity input { width: 5.5rem; padding: 0.35rem; font: inherit; }
+.cart-quantity { display: flex; align-items: center; gap: 0.5rem; }
+.cart-table tfoot th { text-align: right; }
+.cart-total { font-weight: 700; }
+.cart-warning { margin: 0.25rem 0 0; color: var(--error); }
+.muted { color: var(--muted); }
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
