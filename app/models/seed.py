@@ -5,13 +5,19 @@ works when the storage changes to Neo4j. Minimum orders, categories and allergen
 ASSUMPTIONS (docs/plans/01-implementation-plan.md §7).
 
 DEMO_PASSWORD is for local testing with synthetic data only — never use it in production.
+
+Food pictures are original SVG illustrations in `seed_pictures/` (made for this project, no
+third-party material; see `seed_pictures/README.md`). They are copied into the upload folder, so an
+admin can replace them like any uploaded picture (A2).
 """
 from datetime import date, timedelta
+from pathlib import Path
 
 from app.models.entities import EventCategory, FoodItem, GuestGroup, Order, OrderLine, Question, User
 from app.models.enums import Allergen as A
 from app.models.enums import DietaryLabel as D
 from app.models.enums import OrderStatus, PaymentStatus, Role
+from app.models.images import check_svg
 from app.models.security import hash_password
 
 DEMO_PASSWORD = "ektemat-demo"
@@ -52,6 +58,24 @@ FOOD_ITEMS = [
     ("Kids menu", "Child-sized portions for guests under 12.",
      149, 5, ["birthday", "confirmation", "wedding"], {A.GLUTEN, A.MILK}, {D.KIDS_FRIENDLY}, True),
 ]
+
+SEED_PICTURES_DIR = Path(__file__).parent / "seed_pictures"
+
+# food item name -> picture in SEED_PICTURES_DIR (stored in the upload folder as "seed-<file>")
+PICTURES = {
+    "Fish soup with Bergen cod": "fish-soup.svg",
+    "Slow-cooked lamb from Voss": "lamb-voss.svg",
+    "Beetroot and chickpea salad": "beetroot-salad.svg",
+    "Rakfisk tasting": "rakfisk.svg",
+    "Seasonal lunch buffet": "lunch-buffet.svg",
+    "Vegetarian harvest menu": "harvest-menu.svg",
+    "Fish and seafood menu": "seafood.svg",
+    "Meeting sandwiches": "sandwiches.svg",
+    "Konfirmasjon buffet": "confirmation-buffet.svg",
+    "Traditional julebord buffet": "julebord.svg",
+    "Wedding served dinner (3 courses)": "wedding-dinner.svg",
+    "Kids menu": "kids-menu.svg",
+}
 
 USERS = [
     ("admin@ektemat.example", "Ekte Mat Admin", Role.ADMIN),
@@ -107,8 +131,11 @@ QUESTIONS = [
 ]
 
 
-def seed(repos):
-    """Insert the seed data. Returns False (and changes nothing) if data already exists."""
+def seed(repos, images=None):
+    """Insert the seed data. Returns False (and changes nothing) if data already exists.
+
+    With `images` (an ImageStorage) every food item also gets its demo picture.
+    """
     if repos.categories.list_all():
         return False
 
@@ -122,6 +149,7 @@ def seed(repos):
             name, description, price, min_order,
             category_ids=[category_ids[slug] for slug in slugs],
             allergens=allergens, dietary_labels=labels, published=published,
+            image_filename=_store_picture(images, name),
         ))
 
     users = {}
@@ -152,3 +180,11 @@ def seed(repos):
             repos.questions.answer(question.id, answer, admin.id)
 
     return True
+
+
+def _store_picture(images, item_name):
+    if images is None:
+        return None
+    data = (SEED_PICTURES_DIR / PICTURES[item_name]).read_bytes()
+    check_svg(data)  # same safety rules as uploaded pictures
+    return images.store(f"seed-{PICTURES[item_name]}", data)

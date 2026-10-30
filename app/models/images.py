@@ -131,6 +131,13 @@ class ImageStorage:
         except ImageError:
             pass
 
+    def store(self, name, data):
+        """Write a picture under a fixed name (seed pictures); an existing file is replaced."""
+        os.makedirs(self.folder, exist_ok=True)
+        with open(os.path.join(self.folder, _safe_name(name)), "wb") as f:
+            f.write(data)
+        return name
+
     def read(self, filename):
         """Bytes of a saved picture, or None."""
         path = os.path.join(self.folder, _safe_name(filename))
