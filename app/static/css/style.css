@@ -84,7 +84,7 @@ main {
   font-weight: 600;
 }
 
-.field input:not([type="checkbox"]),
+.field input:not([type="checkbox"]):not([type="radio"]),
 .field select,
 .field textarea {
   width: 100%;
