@@ -1,10 +1,9 @@
 """Admin panel only for staff; navigation per role; CSRF (US-21; NFR-05, NFR-06)."""
 import pytest
 
-from app import create_app
 from app.models.repositories.factory import init_storage
 from config import TestConfig
-from tests.factories import PASSWORD, log_in
+from tests.factories import PASSWORD, log_in, make_app
 
 
 def admin_get_paths(app):
@@ -67,7 +66,7 @@ def test_post_without_csrf_token_is_rejected(tmp_path):
     class CsrfConfig(TestConfig):
         WTF_CSRF_ENABLED = True
 
-    app = create_app(CsrfConfig, overrides={"DATABASE": str(tmp_path / "csrf.sqlite")})
+    app = make_app(tmp_path, CsrfConfig, "csrf.sqlite")
     init_storage(app.config)
     client = app.test_client()
     assert client.post("/account/login", data={"email": "a@example.com", "password": "x"}).status_code == 400

@@ -1,19 +1,25 @@
 import pytest
 
-from app import create_app
 from app.models.entities import EventCategory, FoodItem, User
 from app.models.enums import Allergen, Role
 from app.models.repositories.factory import init_storage
 from app.models.security import hash_password
-from config import TestConfig
-from tests.factories import PASSWORD
+from tests.factories import NEO4J_TESTS, PASSWORD, make_app
+
+
+def pytest_collection_modifyitems(config, items):
+    # sqlite_only: about the SQLite file itself; neo4j: needs the Neo4j test server (TEST_STORAGE=neo4j)
+    for item in items:
+        if NEO4J_TESTS and item.get_closest_marker("sqlite_only"):
+            item.add_marker(pytest.mark.skip(reason="SQLite-specific test (TEST_STORAGE=neo4j)"))
+        if not NEO4J_TESTS and item.get_closest_marker("neo4j"):
+            item.add_marker(pytest.mark.skip(reason="needs a Neo4j test server (set TEST_STORAGE=neo4j)"))
 
 
 @pytest.fixture
 def app(tmp_path):
     """App with test settings, a temporary database and upload folder; never touches instance/."""
-    return create_app(TestConfig, overrides={"DATABASE": str(tmp_path / "test.sqlite"),
-                                             "UPLOAD_FOLDER": str(tmp_path / "uploads")})
+    return make_app(tmp_path)
 
 
 @pytest.fixture

@@ -23,6 +23,7 @@ def test_pages_explain_how_to_initialise_database(app, path):
     assert "flask --app run reset-db --yes" in page
 
 
+@pytest.mark.sqlite_only
 def test_other_database_errors_are_not_hidden(app, repos):
     # Only "no such table" is translated; real SQL errors still surface
     import sqlite3

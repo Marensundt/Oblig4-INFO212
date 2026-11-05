@@ -4,3 +4,5 @@ python-dotenv==1.2.4
 pytest==9.2.0
 # A2 image service (Claude); only used when ANTHROPIC_API_KEY is set
 anthropic==2.3.0
+# Neo4j storage (Oblig 5); only used when STORAGE=neo4j
+neo4j==6.4.1

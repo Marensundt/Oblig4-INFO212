@@ -15,11 +15,17 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
 
-    # Storage implementation chosen in app/models/repositories/factory.py (Neo4j in Oblig 5).
-    STORAGE = "sqlite"
+    # Storage implementation chosen in app/models/repositories/factory.py: "neo4j" (default, Oblig 5) or "sqlite".
+    STORAGE = (os.environ.get("STORAGE") or "neo4j").strip().lower()
 
     # File-based SQLite database; None means "instance/ektemat.sqlite" (set in create_app).
     DATABASE = os.environ.get("DATABASE")
+
+    # Neo4j (Oblig 5, the default storage). The password comes from .env only.
+    NEO4J_URI = os.environ.get("NEO4J_URI") or "bolt://localhost:7687"
+    NEO4J_USER = os.environ.get("NEO4J_USER") or "neo4j"
+    NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD", "")
+    NEO4J_DATABASE = os.environ.get("NEO4J_DATABASE") or "neo4j"
 
     # Folder for food item pictures; None means "instance/uploads" (set in create_app).
     UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER")
@@ -34,5 +40,8 @@ class Config:
 class TestConfig(Config):
     TESTING = True
     SECRET_KEY = "test-secret-key"
+    # Tests never use the development database from .env; tests/conftest.py switches to Neo4j
+    # only when TEST_STORAGE=neo4j, with the separate NEO4J_TEST_* settings.
+    STORAGE = "sqlite"
     WTF_CSRF_ENABLED = False
     ANTHROPIC_API_KEY = ""

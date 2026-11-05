@@ -26,7 +26,7 @@ Clause-level coverage (each part of each requirement → acceptance criterion): 
 |---|---|---|---|
 | §3 MVC with Flask; three layers visible in folders | NFR-01; `mvc-architecture.puml`; 01-plan §3 | 0 | Folder structure; report part 3 |
 | §3 Blueprints (e.g. shop, account, admin) | NFR-01; 01-plan §3, §5 | 0 | `app/controllers/` |
-| §3 Only repository classes in the model layer touch storage; Neo4j can replace it without changing controllers/views | NFR-02; `mvc-architecture.puml`; `domain-class.puml` | 1 | `tests/test_smoke.py::test_sqlite_only_in_repositories`; review |
+| §3 Only repository classes in the model layer touch storage; Neo4j can replace it without changing controllers/views | NFR-02; `mvc-architecture.puml`; `domain-class.puml` | 1 | `tests/test_smoke.py::test_sqlite_only_in_repositories`; `tests/test_storage_selection.py::test_neo4j_driver_only_in_neo4j_repositories`; whole suite with `TEST_STORAGE=neo4j`; review |
 | §3 Front end HTML/CSS/JS | 01-plan §1 (Jinja2 templates) | 0–10 | `app/views/templates/`, `app/static/` |
 | §3 No Claude API key in the repository | NFR-03; US-05 AC4; NFR-19 | 0, 9, 10 | `tests/test_smoke.py::test_no_api_keys_in_source`, `tests/test_no_secrets.py`; `git grep` on working tree and history before the tag |
 | §3 Customer login | US-10, US-11; NFR-04 | 2 | Auth tests |

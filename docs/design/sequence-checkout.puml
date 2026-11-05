@@ -1,6 +1,7 @@
 @startuml sequence-checkout
 ' Ekte Mat Online — sequence diagram: customer submits an order (C3; US-11, US-12, US-13)
 ' Participants follow the MVC architecture (mvc-architecture.puml). Entity participants exist in domain-class.puml.
+' Updated 2026-11-04 for Oblig 5: the database is Neo4j by default (graph-model.puml); SQLite with STORAGE=sqlite.
 !pragma layout smetana
 autonumber
 skinparam responseMessageBelowArrow true
@@ -14,15 +15,15 @@ entity ":GuestGroup" as GG
 participant "UserRepository" as UserRepo <<repository>>
 participant "FoodItemRepository" as ItemRepo <<repository>>
 participant "OrderRepository" as OrderRepo <<repository>>
-database "SQLite\n(Neo4j in Oblig 5)" as DB
+database "Neo4j\n(or SQLite)" as DB
 
 Customer -> Ctrl : GET /account/checkout
 alt not logged in
   Ctrl --> Customer : redirect to /account/login?next=/account/checkout
   Customer -> Ctrl : POST /account/login (e-mail, password)
   Ctrl -> UserRepo : get_by_email(email)
-  UserRepo -> DB : query
-  DB --> UserRepo : row
+  UserRepo -> DB : MATCH (u:User {email: $email})
+  DB --> UserRepo : record
   UserRepo --> Ctrl : User
   Ctrl --> Customer : redirect to /account/checkout
 end
@@ -35,8 +36,8 @@ View --> Customer : order form
 
 Customer -> Ctrl : POST /account/checkout\n(event date, guests, address, guest groups)
 Ctrl -> ItemRepo : get_many(item ids in cart)
-ItemRepo -> DB : query
-DB --> ItemRepo : rows
+ItemRepo -> DB : MATCH (f:FoodItem) WHERE f.id IN $ids
+DB --> ItemRepo : records
 ItemRepo --> Ctrl : FoodItem[*]
 Ctrl -> Order ** : create(customer, eventDate, guestCount, address, lines from cart)
 loop for each guest group in form
@@ -58,7 +59,7 @@ alt invalid
   View --> Customer : form with error messages
 else valid
   Ctrl -> OrderRepo : add(order)
-  OrderRepo -> DB : INSERT order, lines, guest groups\n(one transaction)
+  OrderRepo -> DB : CREATE (:User)-[:PLACED]->(:Order),\nHAS_LINE / HAS_GUEST_GROUP nodes\n(one transaction)
   DB --> OrderRepo : ok
   OrderRepo --> Ctrl : Order (orderNumber,\nstatus = submitted, payment = not_paid)
   Ctrl -> Cart : clear()

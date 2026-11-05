@@ -4,6 +4,8 @@ from app.models.enums import Allergen, DietaryLabel
 from app.models.errors import DataIntegrityError
 from app.models.repositories.sqlite.database import SqliteDatabase
 
+pytestmark = pytest.mark.sqlite_only
+
 
 @pytest.fixture
 def db(tmp_path):

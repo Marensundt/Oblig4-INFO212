@@ -6,10 +6,11 @@ All diagrams use `!pragma layout smetana`, so they render with Java + `plantuml.
 | Diagram | File | Scope / source | How it is used |
 |---|---|---|---|
 | Use case diagram | `use-case.puml` | All Must stories of A1–A4, C1–C5 (UC-01 – UC-17) | Agreeing the system boundary and actors; checking that every official requirement has a use case; splitting work between students |
-| Domain class diagram | `domain-class.puml` | Entities from `user-stories.md`, constraints from `data-validation-rules.md` | Basis for the model layer (`app/models/entities.py`), repository interfaces and SQLite schema; later for the Neo4j graph model (Oblig 5) |
-| Sequence diagram | `sequence-checkout.puml` | C3 submit order (US-11, US-12, US-13) through the MVC layers | Briefing Claude Code for phase 6; shows validation points and the single repository transaction |
+| Domain class diagram | `domain-class.puml` | Entities from `user-stories.md`, constraints from `data-validation-rules.md` | Basis for the model layer (`app/models/entities.py`), repository interfaces, the SQLite schema and the Neo4j graph model (Oblig 5) |
+| Sequence diagram | `sequence-checkout.puml` | C3 submit order (US-11, US-12, US-13) through the MVC layers | Briefing Claude Code for phase 6; shows validation points and the single repository transaction (Cypher on Neo4j since Oblig 5) |
 | State machine | `state-order.puml` | Order status from OB4 A3 (US-15) | Source for `OrderStatus.can_change_to()` and its tests |
-| MVC architecture sketch | `mvc-architecture.puml` | OB4 §3; 01-plan §3, §6 | Folder structure and layer rules in CLAUDE.md; shows the Neo4j swap point |
+| MVC architecture sketch | `mvc-architecture.puml` | OB4 §3; 01-plan §3, §6 | Folder structure and layer rules in CLAUDE.md; shows the storage swap point (`factory.py`, Neo4j default, SQLite alternative) |
+| Neo4j graph model | `graph-model.puml` | Oblig 5; `docs/plans/11-oblig5-neo4j.md`; mapped from `domain-class.puml` | Node labels, properties, relationship types and constraints implemented in `app/models/repositories/neo4j/` |
 
 ## Rendering (local only)
 `tools/` is git-ignored; each team member downloads the jar once from the official release page (https://github.com/plantuml/plantuml/releases). Used 2026-10-28: **v1.2026.9**, Java 8 build `plantuml-java8-1.2026.9.jar` (needs Java 8+), saved as `tools/plantuml.jar`. With Java 11+ the standard `plantuml-1.2026.9.jar` also works.
@@ -49,3 +50,16 @@ All five diagrams pass `-checkonly` and were inspected after rendering: all elem
 | Sequence (checkout) | ✔ Updated in phase 6: `validate()` is `place_order()` in `app/models/ordering.py` |
 | State machine | ✔ `ALLOWED_TRANSITIONS` in `app/models/enums.py`; the admin status form only offers `OrderStatus.next_statuses` |
 | MVC architecture | ✔ Updated in phase 10: domain-rule modules, `ImageStorage` and `instance/uploads` added; controllers reach the database only through repository interfaces (`tests/test_smoke.py`) |
+
+## Oblig 5: Neo4j (2026-11-04)
+
+| Diagram | Change | Matches the code? |
+|---|---|---|
+| Graph model (new) | Node labels, properties, 11 relationship types, unique constraints; allergens and dietary labels as shared nodes | ✔ Same labels, relationship types and constraints as `app/models/repositories/neo4j/` (`CONSTRAINTS` in `database.py`); `tests/repositories/test_neo4j_database.py` checks constraints and graph patterns |
+| MVC architecture | Neo4j is the default storage (solid), SQLite the alternative (dashed); `factory.py` chooses by `STORAGE` | ✔ `app/models/repositories/factory.py`; no controller changed (NFR-02); `tests/test_storage_selection.py` |
+| Sequence (checkout) | Database participant is Neo4j (or SQLite); repository calls shown as Cypher | ✔ `Neo4jUserRepository.get_by_email`, `Neo4jFoodItemRepository.get_many`, `Neo4jOrderRepository.add` (one transaction) |
+| Domain class, use case, state machine | Unchanged: storage-independent | ✔ |
+
+All six diagrams pass `-checkonly`; the three changed ones were re-rendered and inspected. Known cosmetic issue: in `graph-model.png` a few multiplicities sit close to their arrowheads (e.g. at ASKED/ANSWERED; layout engine limitation, labels still readable).
+
+**Mapping domain model → graph:** every domain class is a node label; associations become relationships (`Order.customer` → `PLACED`, `OrderLine.foodItem` → `OF_ITEM`, `Question.answeredBy` → `ANSWERED`); the enums `Allergen` and `DietaryLabel` become shared nodes instead of value lists, so allergy questions are graph patterns. Technical ids and counters exist only in the graph, not in the analysis model.

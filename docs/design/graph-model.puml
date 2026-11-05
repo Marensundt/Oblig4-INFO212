@@ -1,0 +1,118 @@
+@startuml graph-model
+' Ekte Mat Online — Neo4j graph model (Oblig 5; docs/plans/11-oblig5-neo4j.md).
+' Boxes are node labels with their properties; arrows are relationship types (direction as stored).
+' Implemented in app/models/repositories/neo4j/. Domain classes: domain-class.puml.
+!pragma layout smetana
+hide circle
+hide methods
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor<<node>> #F5F9FF
+  BackgroundColor<<fixed>> #F2F2F2
+}
+
+class User <<node>> {
+  id : int {unique}
+  email : string {unique, lower case}
+  password_hash : string
+  name : string
+  phone : string [0..1]
+  role : customer | admin
+  created_at : LocalDateTime
+}
+
+class Order <<node>> {
+  id : int {unique}
+  order_number : "YY-NNNN" {unique}
+  event_date : Date
+  guest_count : int >= 1
+  delivery_address : string
+  status : OrderStatus
+  payment_status : PaymentStatus
+  created_at, updated_at : LocalDateTime
+}
+
+class OrderLine <<node>> {
+  id : int {unique}
+  item_name : string
+  unit_price_nok : int > 0
+  quantity : int >= 1
+}
+
+class GuestGroup <<node>> {
+  id : int {unique}
+  label : string
+  count : int >= 1
+  dietary_notes : string
+}
+
+class FoodItem <<node>> {
+  id : int {unique}
+  name : string
+  description : string
+  price_nok : int > 0
+  min_order_qty : int >= 1
+  published : boolean
+  image_filename : string [0..1]
+}
+
+class EventCategory <<node>> {
+  id : int {unique}
+  slug : string {unique}
+  name : string
+  sort_order : int
+}
+
+class Question <<node>> {
+  id : int {unique}
+  text : string
+  asked_at : LocalDateTime
+  answer_text : string [0..1]
+  answered_at : LocalDateTime [0..1]
+}
+
+class Allergen <<fixed>> {
+  code : string {unique}
+}
+
+class DietaryLabel <<fixed>> {
+  code : string {unique}
+}
+
+User "1" --> "0..*" Order : PLACED
+Order "1" --> "1..*" OrderLine : HAS_LINE
+OrderLine "0..*" --> "0..1" FoodItem : OF_ITEM
+Order "1" --> "1..*" GuestGroup : HAS_GUEST_GROUP
+GuestGroup "0..*" --> "0..*" Allergen : ALLERGIC_TO
+FoodItem "0..*" --> "1..*" EventCategory : IN_CATEGORY
+FoodItem "0..*" --> "0..*" Allergen : CONTAINS
+FoodItem "0..*" --> "0..*" DietaryLabel : HAS_LABEL
+User "1" --> "0..*" Question : ASKED
+Question "0..*" --> "1" Order : ABOUT
+User "0..1" --> "0..*" Question : ANSWERED
+
+note bottom of Allergen
+  14 EU allergens and 6 dietary labels are
+  created once by init-db and shared, so
+  "which ordered dishes contain an allergen
+  a guest group has?" is one graph pattern:
+  (:Order)-[:HAS_GUEST_GROUP]->()-[:ALLERGIC_TO]->(a)
+  <-[:CONTAINS]-(f)<-[:OF_ITEM]-()<-[:HAS_LINE]-(:Order)
+end note
+
+note right of OrderLine
+  name and price are copied at checkout;
+  deleting a food item removes only OF_ITEM,
+  the line keeps its history
+end note
+
+note as Tech
+  Not domain data:
+  (:Counter {name, value}) gives integer ids per label
+  and order numbers per year; (:EkteMatSchema {version})
+  marks an initialised database.
+  Unique constraints on every {unique} property.
+  Value rules (> 0, >= 1) are checked in the repositories
+  (Community Edition has no value constraints).
+end note
+@enduml
