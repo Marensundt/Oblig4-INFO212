@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Database not set up — Ekte Mat Online{% endblock %}
 {% block content %}
+{% if unavailable %}
+  <h1>The database cannot be reached</h1>
+  <p>Ekte Mat Online cannot show this page because it cannot connect to its database.</p>
+  <p>Check that the Neo4j server is running and that <code>NEO4J_URI</code>, <code>NEO4J_USER</code> and
+    <code>NEO4J_PASSWORD</code> in <code>.env</code> are correct, then try again (see README, “Start Neo4j”).</p>
+{% else %}
   <h1>The database is not set up yet</h1>
   <p>Ekte Mat Online cannot show this page because its database has not been created.</p>
   <p>Stop the server, run this command in the project folder, and start the server again:</p>
   <pre><code>flask --app run reset-db --yes</code></pre>
-  <p>This creates <code>instance/ektemat.sqlite</code> with synthetic sample data (see README, “Seed the database”).</p>
+  <p>This creates the database (Neo4j, or <code>instance/ektemat.sqlite</code> when
+    <code>STORAGE=sqlite</code>) with synthetic sample data (see README, “Seed the database”).</p>
+{% endif %}
 {% endblock %}

@@ -10,14 +10,14 @@ Requirements: `docs/plans/00-requirements-analysis.md`. Implementation plan: `do
 - `app/controllers/` — Flask blueprints: `shop` (C1–C2), `account` (login/register, C3–C5), `admin` (A1–A4).
 - Food item pictures live in `instance/uploads/` (git-ignored), are written only by `ImageStorage` (`app/models/images.py`) and served by `shop.upload` (`/uploads/<filename>`). New pictures stay in `uploads/pending/` until the admin saves them (A2).
 - A2 image service: offline placeholder by default; Claude writes SVGs only if `ANTHROPIC_API_KEY` is set in `.env`. Tests never call the API.
-- Storage: file-based SQLite at `instance/ektemat.sqlite` (git-ignored, persists between restarts). Only repository classes in `app/models/repositories/` touch it, so Neo4j can replace SQLite in Oblig 5 without changes to controllers or views. Neo4j is **not** part of Oblig 4.
+- Storage: Neo4j by default (Oblig 5; `NEO4J_*` settings in `.env`, local Docker container, plan `docs/plans/11-oblig5-neo4j.md`), or file-based SQLite at `instance/ektemat.sqlite` with `STORAGE=sqlite` (git-ignored, persists between restarts). Tests use SQLite unless `TEST_STORAGE=neo4j` (`TestConfig` pins it). Only repository classes in `app/models/repositories/` (`sqlite/`, `neo4j/`) touch storage; `factory.py` chooses. Cypher is always parameterised. `TEST_STORAGE=neo4j pytest` runs all tests on the `NEO4J_TEST_*` server and wipes its Ekte Mat data.
 
 ## How to run and test
 Python 3.11+. From the repository root:
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-flask --app run reset-db --yes   # create + seed instance/ektemat.sqlite (synthetic data)
+flask --app run reset-db --yes   # create + seed the Neo4j database (synthetic data); needs Neo4j running
 flask --app run run              # http://127.0.0.1:5000
 pytest                           # also runs in GitHub Actions on every PR
 ```

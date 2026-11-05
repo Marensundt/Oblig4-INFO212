@@ -32,6 +32,10 @@ class StorageNotInitialised(DomainError):
     """The database has not been created yet (run `flask --app run reset-db --yes`)."""
 
 
+class StorageUnavailable(DomainError):
+    """The database server cannot be reached or refused the login (Neo4j; Oblig 5)."""
+
+
 class InvalidQuantity(DomainError):
     """A cart quantity is outside the allowed range (OB4 C2). The message is shown to the visitor."""
 

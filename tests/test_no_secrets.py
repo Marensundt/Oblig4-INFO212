@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 # A filled-in value in an env-style file (.env.example must keep the values empty)
-ENV_VALUE = re.compile(r"^[ \t]*(ANTHROPIC_API_KEY|SECRET_KEY)[ \t]*=[ \t]*[^\s#]", re.M)
+ENV_VALUE = re.compile(r"^[ \t]*(ANTHROPIC_API_KEY|SECRET_KEY|NEO4J_PASSWORD)[ \t]*=[ \t]*[^\s#]", re.M)
 
 
 def tracked_files():

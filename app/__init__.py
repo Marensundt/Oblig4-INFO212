@@ -10,7 +10,7 @@ import os
 from flask import Flask, render_template
 from flask_wtf import CSRFProtect
 
-from app.models.errors import StorageNotInitialised
+from app.models.errors import StorageNotInitialised, StorageUnavailable
 from app.models.image_service import build_image_service
 from app.models.images import ImageStorage
 from app.models.repositories.factory import build_repositories
@@ -67,6 +67,11 @@ def create_app(config_class=Config, overrides=None):
     def storage_not_initialised(error):
         app.logger.error("Database not initialised: %s", error)
         return render_template("errors/database.html"), 503
+
+    @app.errorhandler(StorageUnavailable)
+    def storage_unavailable(error):
+        app.logger.error("Database unavailable: %s", error)
+        return render_template("errors/database.html", unavailable=True), 503
 
     @app.errorhandler(413)
     def too_large(error):

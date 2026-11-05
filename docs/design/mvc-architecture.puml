@@ -1,5 +1,6 @@
 @startuml mvc-architecture
 ' Ekte Mat Online — MVC architecture sketch (OB4 §3; 01-plan §3, §6). Updated 2026-10-29 to match the code (phase 10).
+' Updated 2026-11-04 for Oblig 5: Neo4j is the default storage; factory.py chooses by STORAGE (docs/plans/11).
 !pragma layout smetana
 skinparam componentStyle rectangle
 
@@ -24,14 +25,15 @@ package "app/models (MODEL)" {
   [ImageStorage\n(picture files)] as Files
   package "repositories" {
     [Repository interfaces] as IRepo
-    [sqlite/ implementations] as SqliteRepo
-    [neo4j/ implementations\n(Oblig 5)] as NeoRepo #line.dashed
+    [factory.py\nbuild_repositories(config)\nSTORAGE = neo4j | sqlite] as Factory
+    [neo4j/ implementations\n(default, Oblig 5)] as NeoRepo
+    [sqlite/ implementations\n(STORAGE=sqlite)] as SqliteRepo
   }
 }
 
-database "instance/ektemat.sqlite" as DB
+database "Neo4j server\n(bolt://localhost:7687)" as Neo
+database "instance/ektemat.sqlite\n(alternative)" as DB #line.dashed
 folder "instance/uploads" as Uploads
-database "Neo4j\n(Oblig 5)" as Neo #line.dashed
 cloud "AI image service\n(key from .env)" as AI #line.dashed
 
 Browser --> CShop : HTTP
@@ -53,9 +55,12 @@ CAdmin --> Files
 CShop --> Files : serve pictures
 Files --> Uploads
 Img ..> AI
-IRepo <|.. SqliteRepo
 IRepo <|.. NeoRepo
-SqliteRepo --> DB : only place with SQL
-NeoRepo ..> Neo
+IRepo <|.. SqliteRepo
+Factory ..> NeoRepo : creates (default)
+Factory ..> SqliteRepo : creates
+NeoRepo --> Neo : only place with Cypher\n(neo4j driver, parameterised)
+SqliteRepo ..> DB : only place with SQL
+NeoRepo --> Domain : returns domain objects
 SqliteRepo --> Domain : returns domain objects
 @enduml
